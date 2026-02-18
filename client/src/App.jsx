@@ -24,6 +24,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/surah/:id" element={<Surah />} />
               <Route path="/listen" element={<Listen />} />
+              <Route path="/listen/:reciterId" element={<Listen />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
             </Routes>

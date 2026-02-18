@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { RECITERS_DATA } from '@/components/recitersdata';
 function Home() {
     const [surahs, setSurahs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -107,18 +107,28 @@ function Home() {
                     {/* Sidebar (Right in RTL) */}
 
                     <div className="hidden lg:block space-y-6">
+                        <div className="bg-white rounded-xl shadow-sm border p-6 text-center">
+                            <div className="w-24 h-24 mx-auto mb-4 relative">
+                                <div className="absolute inset-0 border-4 border-[#f97316]/20 rounded-full animate-spin-slow"></div>
+                                <img src="https://surahquran.com/img/blog/quran.png" alt="Quran" className="w-full h-full object-contain p-2" />
+                            </div>
+                            <h3 className="font-bold text-lg mb-1">القرآن الكريم مكتوب</h3>
+                            <p className="text-xs text-muted-foreground">رواية حفص عن عاصم</p>
+                        </div>
                         <Card className="border-none shadow-md overflow-hidden">
                             <div className="bg-[#f97316] p-4 text-white text-center font-bold">
                                 القراءات الأكثر استماعاً
                             </div>
-                            <div className="p-4 space-y-3 bg-white">
-                                {['مشاري العفاسي', 'عبدالباسط عبدالصمد', 'ماهر المعيقلي', 'سعد الغامدي'].map((reciter, i) => (
-                                    <div key={i} className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg cursor-pointer transition-colors">
+                            <div className="p-4 space-y-3 bg-white ">
+                                {RECITERS_DATA.slice(0, 8).map((reciter, i) => (
+                                    <a key={i} href={`/listen/${reciter.id}`} className="flex items-center justify-between gap-3 p-2 hover:bg-sla rounded-lg cursor-pointer transition-colors">
+                                        <img src={reciter.img} alt={reciter.name} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center" />
+
+                                        <span className="font-medium text-sm">{reciter.name}</span>
                                         <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                                             <PlayCircle className="w-6 h-6 text-[#f97316]" />
                                         </div>
-                                        <span className="font-medium text-sm">{reciter}</span>
-                                    </div>
+                                    </a>
                                 ))}
                                 <Button asChild variant="outline" className="w-full mt-2 border-[#f97316] text-[#f97316] hover:bg-[#f97316] hover:text-white">
                                     <Link to="/listen">عرض الكل</Link>

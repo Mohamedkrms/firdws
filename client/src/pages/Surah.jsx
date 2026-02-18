@@ -232,7 +232,7 @@ function Surah() {
                     <div className="bg-white rounded-xl shadow-sm border p-6">
                         <div className="flex items-center justify-between mb-4 border-b pb-2">
                             <h3 className="font-bold flex items-center gap-2"><Headphones className="w-5 h-5 text-[#f97316]" /> استمع للسورة بصوت أشهر القراء</h3>
-                            <Link to="#" className="text-xs text-[#f97316] hover:underline">عرض الكل</Link>
+                            <Link to={`/listen?surah=${surahId}`} className="text-xs text-[#f97316] hover:underline">عرض الكل</Link>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 text-center">
                             {POPULAR_RECITERS.map(reciter => (

@@ -1,0 +1,21 @@
+const RECITERS_DATA = [
+    { id: 7, slug: 'mishaari_raashid_al_3afaasee', name: 'مشاري بن راشد العفاسي', img: 'https://i.pinimg.com/564x/0a/40/9e/0a409ef09a55700877c20d7195fe9126.jpg' },
+    { id: 2, slug: 'abdul_basit_murattal', name: 'عبد الباسط - مرتل', img: 'https://i.pinimg.com/564x/52/95/ae/5295ae7c08e4ebdc7eda3ddb5c6c0a19.jpg' },
+    { id: 1, slug: 'abdulbaset_mujawwad', name: 'عبد الباسط - مجود', img: 'https://i.pinimg.com/564x/52/95/ae/5295ae7c08e4ebdc7eda3ddb5c6c0a19.jpg', style: 'مجود' },
+    { id: 3, slug: 'abdurrahmaan_as-sudays', name: 'عبد الرحمن السديس', img: 'https://i.pinimg.com/564x/60/26/56/6026563f82cb5b328df95c3263158434.jpg' },
+    { id: 4, slug: 'abu_bakr_ash-shaatree', name: 'أبو بكر الشاطري', img: 'https://i.pinimg.com/564x/72/7a/0d/727a0d82944f22c8cb314f3b232692aa.jpg' },
+    { id: 5, slug: 'hani_ar-rifai', name: 'هاني الرفاعي', img: 'https://i.pinimg.com/564x/64/00/4c/64004c865f375c3db77ec81d12df85e9.jpg' },
+    { id: 6, slug: 'mahmoud_khaleel_al-husairee', name: 'محمود خليل الحصري', img: 'https://i.pinimg.com/564x/12/f2/3f/12f23f5b0849924ba9535032906b23b8.jpg' },
+    { id: 12, slug: 'mahmoud_khaleel_al-husairee_muallim', name: 'الحصري - معلم', img: 'https://i.pinimg.com/564x/12/f2/3f/12f23f5b0849924ba9535032906b23b8.jpg', style: 'معلم' },
+    { id: 9, slug: 'muhammad_siddeeq_al-minshawee', name: 'محمد صديق المنشاوي', img: 'https://i.pinimg.com/564x/d1/1d/10/d11d10e5b721e06553896dfa2512f43e.jpg' },
+    { id: 8, slug: 'muhammad_siddeeq_al-minshawee', name: 'المنشاوي - مجود', img: 'https://i.pinimg.com/564x/d1/1d/10/d11d10e5b721e06553896dfa2512f43e.jpg', style: 'مجود' },
+    { id: 10, slug: 'sa3ood_ash-shuraym', name: 'سعود الشريم', img: 'https://i.pinimg.com/564x/39/64/95/39649514d339d2553d9e436815779774.jpg' },
+    { id: 11, slug: 'muhammad_al-tablawi', name: 'محمد الطبلاوي', img: 'https://i.pinimg.com/564x/87/44/2c/87442c54434237dd523b242e47192ca5.jpg' },
+    { id: 13, slug: 'maher_almu3aiqly', name: 'ماهر المعيقلي', img: 'https://i.pinimg.com/564x/9d/a4/e9/9da4e9820410c2f262c647c28020337e.jpg' },
+    { id: 14, slug: 'saad_alghamdi', name: 'سعد الغامدي', img: 'https://i.pinimg.com/564x/85/27/cf/8527cf694f379425e43b9a4fe54b6cfb.jpg' },
+    { id: 15, slug: 'ahmed_alajmy', name: 'أحمد العجمي', img: 'https://i.pinimg.com/564x/b1/9f/03/b19f03a9f2f09c46afbfd4f03727aee7.jpg' },
+    { id: 16, slug: 'yasser_ad-dussary', name: 'ياسر الدوسري', img: 'https://s-media-cache-ak0.pinimg.com/564x/32/3e/17/323e173f4833680898f51240bedd4973.jpg' },
+    { id: 17, slug: 'nasser_alqatami', name: 'ناصر القطامي', img: 'https://i.pinimg.com/564x/52/de/a5/52dea5b5ce9ea312315229b0bde677cd.jpg' },
+    { id: 18, slug: 'fares_abbad', name: 'فارس عباد', img: 'https://i.pinimg.com/564x/42/40/5b/42405b40de914c03e0eec7516866c0f7.jpg' },
+];
+export { RECITERS_DATA }
