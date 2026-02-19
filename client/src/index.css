@@ -120,3 +120,33 @@ h6 {
 .animate-spin-slow {
   animation: spin-slow 8s linear infinite;
 }
+
+/* Dorar.net Result Styles */
+.dorar-result .hadith {
+  margin-bottom: 1rem;
+  line-height: 2.2;
+}
+
+.dorar-result .hadith-info {
+  background-color: #f8fafc;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.dorar-result .info-subtitle {
+  color: #f97316;
+  font-weight: 700;
+  margin-left: 0.3rem;
+}
+
+.dorar-result .search-keys {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #c2410c;
+  padding: 0 0.2rem;
+  border-radius: 0.2rem;
+}

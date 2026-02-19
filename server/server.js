@@ -176,4 +176,66 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
+// ─── Dorar.net API Proxy ─────────────────────────────────────────────────────
+
+// Helper to remove tashkeel (diacritics)
+function removeTashkeel(text) {
+    return text.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, '');
+}
+
+app.get('/api/hadith/sharh', async (req, res) => {
+    try {
+        const { text } = req.query;
+        if (!text) return res.status(400).json({ error: 'text required' });
+
+        // Clean text for better search
+        const cleanText = text.slice(0, 100).replace(/[^\u0600-\u06FF\s]/g, ' ').trim();
+
+        const fetch = (await import('node-fetch')).default;
+        const encoded = encodeURIComponent(cleanText);
+        // Using skey as requested by user
+        const url = `https://dorar.net/dorar_api.json?skey=${encoded}`;
+
+        console.log(`[Dorar] Searching for: "${cleanText}"`);
+
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            },
+            timeout: 10000
+        });
+
+        const textRes = await response.text();
+
+        // Dorar sometimes returns JSONP if callback is in url, but we didn't add it.
+        // It returns JSON.
+        let data;
+        try {
+            data = JSON.parse(textRes);
+        } catch (e) {
+            console.error('[Dorar] Invalid JSON response:', textRes.slice(0, 100));
+            return res.json({ found: false });
+        }
+
+        const htmlResult = data.ahadith?.result;
+
+        if (!htmlResult || htmlResult.includes('لا يوجد نتائج')) {
+            return res.json({ found: false });
+        }
+
+        res.json({
+            found: true,
+            html: htmlResult
+        });
+
+    } catch (error) {
+        console.error('Dorar proxy error:', error.message);
+        res.json({ found: false });
+    }
+});
+
+
+
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+

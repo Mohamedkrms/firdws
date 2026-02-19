@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import {
     BookOpen, ChevronLeft, ChevronRight, Search,
@@ -12,6 +12,26 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { HADITH_BOOKS, getBookById, getSectionName } from '@/utils/sunnahData';
 
 const BASE_URL = 'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions';
+
+
+// Fetch Arabic sharh via server proxy (HadeethEnc.com with in-memory cache)
+// Fetch Arabic sharh/takhrij via server proxy (Dorar.net)
+async function fetchSharh(hadithText) {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    try {
+        const res = await axios.get(`${API_URL}/api/hadith/sharh`, {
+            params: { text: hadithText?.slice(0, 100) },
+            timeout: 15000,
+        });
+        if (res.data?.found && res.data?.html) {
+            return { html: res.data.html };
+        }
+    } catch (e) {
+        console.error("Error fetching sharh:", e);
+    }
+    return null;
+}
+
 
 // ─── /sunnah — Books List ────────────────────────────────────────────────────
 export function SunnahHome() {
@@ -158,8 +178,8 @@ export function SunnahSection() {
     const [hadiths, setHadiths] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedHadith, setSelectedHadith] = useState(null);
-    const [engText, setEngText] = useState('');
-    const [engLoading, setEngLoading] = useState(false);
+    const [sharh, setSharh] = useState(null);
+    const [sharhLoading, setSharhLoading] = useState(false);
     const [searchInput, setSearchInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -174,15 +194,15 @@ export function SunnahSection() {
 
     const openHadith = async (hadith) => {
         setSelectedHadith(hadith);
-        setEngText('');
-        setEngLoading(true);
+        setSharh(null);
+        setSharhLoading(true);
         try {
-            const res = await axios.get(`${BASE_URL}/${book.engEdition}/${hadith.hadithnumber}.json`);
-            setEngText(res.data.hadiths?.[0]?.text || '');
+            const result = await fetchSharh(hadith.text);
+            setSharh(result);
         } catch {
-            setEngText('');
+            setSharh(null);
         } finally {
-            setEngLoading(false);
+            setSharhLoading(false);
         }
     };
 
@@ -292,27 +312,36 @@ export function SunnahSection() {
                         </DialogTitle>
                         <p className="text-xs text-muted-foreground">{sectionName}</p>
                     </DialogHeader>
+
                     <div className="space-y-5 py-2">
+                        {/* Arabic Hadith Text */}
                         <div className="bg-[#f9f9f9] rounded-xl p-5 border border-dashed">
                             <p className="font-amiri text-xl leading-[2.2] text-[#1a1a1a] text-justify">{selectedHadith?.text}</p>
                         </div>
+
+                        {/* Sharh/Takhrij Section */}
                         <div>
-                            <div className="flex items-center gap-2 mb-3">
+                            <div className="flex items-center gap-2 mb-4">
                                 <span className="w-1 h-5 bg-[#f97316] rounded-full block" />
-                                <h3 className="font-bold text-[#0f172a]">الشرح (Translation)</h3>
+                                <h3 className="font-bold text-[#0f172a] text-base">حكم الحديث وتخريجه (الدرر السنية)</h3>
                             </div>
-                            {engLoading ? (
-                                <div className="flex items-center gap-2 text-muted-foreground text-sm py-4">
-                                    <Loader2 className="w-4 h-4 animate-spin" /> جارٍ تحميل الشرح...
+
+                            {sharhLoading ? (
+                                <div className="flex items-center gap-2 text-muted-foreground text-sm py-6">
+                                    <Loader2 className="w-4 h-4 animate-spin text-[#f97316]" />
+                                    جارٍ البحث...
                                 </div>
-                            ) : engText ? (
-                                <div className="bg-white rounded-xl p-5 border shadow-sm" dir="ltr">
-                                    <p className="text-gray-700 leading-relaxed text-sm">{engText}</p>
-                                </div>
+                            ) : sharh?.html ? (
+                                <div className="bg-white rounded-xl border shadow-sm overflow-hidden p-5 text-[#1a1a1a] font-amiri leading-loose text-justify dorar-result"
+                                    dangerouslySetInnerHTML={{ __html: sharh.html }}
+                                />
                             ) : (
-                                <p className="text-muted-foreground text-sm">لا يوجد شرح متاح لهذا الحديث.</p>
+                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                                    لم يُعثر على نتائج بحث مطابقة في الدرر السنية.
+                                </div>
                             )}
                         </div>
+
                         {selectedHadith?.reference && (
                             <div className="text-xs text-muted-foreground border-t pt-3">
                                 المرجع: {book.name} — كتاب {selectedHadith.reference.book}، حديث {selectedHadith.reference.hadith}
@@ -325,5 +354,4 @@ export function SunnahSection() {
     );
 }
 
-// Default export for /sunnah route
 export default SunnahHome;
