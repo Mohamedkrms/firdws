@@ -599,11 +599,58 @@ app.get('/api/hadith/sharh', async (req, res) => {
 
 
 
+// ─── Categories ───────────────────────────────────────
+const CategorySchema = new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+    date: { type: Date, default: Date.now }
+});
+const Category = mongoose.model('Category', CategorySchema);
+
+app.get('/api/categories', async (req, res) => {
+    try {
+        const categories = await Category.find().sort({ date: -1 });
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching categories' });
+    }
+});
+
+app.post('/api/categories', async (req, res) => {
+    try {
+        const { name, adminEmail } = req.body;
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        const newCategory = new Category({ name });
+        await newCategory.save();
+        res.status(201).json(newCategory);
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'هذا التصنيف موجود بالفعل' });
+        }
+        res.status(500).json({ message: 'Error adding category' });
+    }
+});
+
+app.delete('/api/categories/:id', async (req, res) => {
+    try {
+        const { adminEmail } = req.query;
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        await Category.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'Category deleted' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting category' });
+    }
+});
+
 // ─── Live Streams (TV/Radio) ──────────────────────────
 const LiveStreamSchema = new mongoose.Schema({
     title: { type: String, required: true },
     url: { type: String, required: true },
     type: { type: String, enum: ['tv', 'radio'], required: true },
+    category: { type: String, default: '' },
     addedBy: { type: String },
     date: { type: Date, default: Date.now }
 });
@@ -611,7 +658,12 @@ const LiveStream = mongoose.model('LiveStream', LiveStreamSchema);
 
 app.get('/api/livestreams', async (req, res) => {
     try {
-        const streams = await LiveStream.find().sort({ date: -1 });
+        const { category } = req.query;
+        const query = {};
+        if (category) {
+            query.category = category;
+        }
+        const streams = await LiveStream.find(query).sort({ date: -1 });
         res.json(streams);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching live streams' });
@@ -620,11 +672,11 @@ app.get('/api/livestreams', async (req, res) => {
 
 app.post('/api/livestreams', async (req, res) => {
     try {
-        const { title, url, type, adminEmail } = req.body;
+        const { title, url, type, category, adminEmail } = req.body;
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        const newStream = new LiveStream({ title, url, type, addedBy: adminEmail });
+        const newStream = new LiveStream({ title, url, type, category: category || '', addedBy: adminEmail });
         await newStream.save();
         res.status(201).json(newStream);
     } catch (error) {

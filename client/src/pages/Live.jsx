@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useUser } from "@clerk/clerk-react";
-import { Tv, Radio, Plus, Trash2, PlayCircle, Loader2, Sparkles, Play, Pause } from 'lucide-react';
+import { Tv, Radio, Plus, Trash2, PlayCircle, Loader2, Sparkles, Play, Pause, Tag, X, Filter } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,9 +16,6 @@ import {
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 const TV_STATIONS = [
-    { _id: 'static-tv-1', title: 'قناة القرآن الكريم (السعودية - مكة)', url: 'https://youtu.be/_pJTDb92ShQ', type: 'tv' },
-    { _id: 'static-tv-2', title: 'قناة السنة النبوية (السعودية - المدينة)', url: 'https://www.youtube.com/watch?v=gT1Ea-a4rV4', type: 'tv' },
-    { _id: 'static-tv-3', title: 'قناة القرآن الكريم (الجزائر)', url: 'https://www.youtube.com/watch?v=l_tQz4HqgVw', type: 'tv' },
 ];
 
 const RADIO_STATIONS = [
@@ -41,17 +38,26 @@ export default function Live() {
     const { user } = useUser();
     const { playTrack, currentAudio, isPlaying, togglePlay } = useAudio();
     const [streams, setStreams] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedCategory, setSelectedCategory] = useState('');
 
     const [formTitle, setFormTitle] = useState('');
     const [formUrl, setFormUrl] = useState('');
+    const [formCategory, setFormCategory] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    // Category management state
+    const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [isCategorySubmitting, setIsCategorySubmitting] = useState(false);
 
     const isAdmin = user && user.primaryEmailAddress?.emailAddress === ADMIN_EMAIL;
 
     useEffect(() => {
         fetchStreams();
+        fetchCategories();
     }, []);
 
     const fetchStreams = async () => {
@@ -65,6 +71,15 @@ export default function Live() {
         }
     };
 
+    const fetchCategories = async () => {
+        try {
+            const res = await axios.get('http://localhost:5000/api/categories');
+            setCategories(res.data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
     const handleAddStream = async (e) => {
         e.preventDefault();
         if (!isAdmin) return;
@@ -74,11 +89,13 @@ export default function Live() {
                 title: formTitle,
                 url: formUrl,
                 type: 'tv',
+                category: formCategory,
                 adminEmail: user.primaryEmailAddress.emailAddress
             });
             setIsDialogOpen(false);
             setFormTitle('');
             setFormUrl('');
+            setFormCategory('');
             fetchStreams();
         } catch (error) {
             console.error("Error adding stream:", error);
@@ -100,9 +117,51 @@ export default function Live() {
         }
     };
 
+    const handleAddCategory = async (e) => {
+        e.preventDefault();
+        if (!isAdmin || !newCategoryName.trim()) return;
+        setIsCategorySubmitting(true);
+        try {
+            await axios.post('http://localhost:5000/api/categories', {
+                name: newCategoryName.trim(),
+                adminEmail: user.primaryEmailAddress.emailAddress
+            });
+            setNewCategoryName('');
+            fetchCategories();
+        } catch (error) {
+            if (error.response?.status === 400) {
+                alert(error.response.data.message);
+            } else {
+                alert("حدث خطأ أثناء إضافة التصنيف.");
+            }
+        } finally {
+            setIsCategorySubmitting(false);
+        }
+    };
+
+    const handleDeleteCategory = async (id) => {
+        if (!isAdmin || !window.confirm('هل أنت متأكد من حذف هذا التصنيف؟')) return;
+        try {
+            await axios.delete(`http://localhost:5000/api/categories/${id}`, {
+                params: { adminEmail: user.primaryEmailAddress.emailAddress }
+            });
+            setCategories(categories.filter(c => c._id !== id));
+            if (selectedCategory && categories.find(c => c._id === id)?.name === selectedCategory) {
+                setSelectedCategory('');
+            }
+        } catch (error) {
+            console.error("Error deleting category:", error);
+        }
+    };
+
     const allStreams = [...streams, ...TV_STATIONS, ...RADIO_STATIONS];
     const tvStreams = allStreams.filter(s => s.type === 'tv');
     const radioStreams = allStreams.filter(s => s.type === 'radio');
+
+    // Filter TV streams by selected category
+    const filteredTvStreams = selectedCategory
+        ? tvStreams.filter(s => s.category === selectedCategory)
+        : tvStreams;
 
     if (loading) {
         return (
@@ -122,52 +181,112 @@ export default function Live() {
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold font-amiri mb-4 flex items-center justify-center gap-3">
                         البث المباشر
-                        <Sparkles className="w-6 h-6 text-[#f97316] animate-pulse" />
                     </h1>
                     <p className="text-lg text-white/80 font-changa mt-2 opacity-90 mb-6">
                         فيديوهات وقنوات مرئية وإذاعية مختارة من القرآن الكريم والسنة النبوية
                     </p>
 
                     {isAdmin && (
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white font-changa rounded-full px-6 shadow-md transition-all gap-2">
-                                    <Plus className="w-4 h-4" /> إضافة بث أو فيديو يوتيوب
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-md bg-white font-changa" dir="rtl">
-                                <DialogHeader>
-                                    <DialogTitle className="text-xl font-bold text-[#0f172a] font-amiri">إضافة بث يوتيوب جديد</DialogTitle>
-                                </DialogHeader>
-                                <form onSubmit={handleAddStream} className="space-y-4 mt-4">
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">اسم البث</label>
-                                        <Input
-                                            required
-                                            value={formTitle}
-                                            onChange={e => setFormTitle(e.target.value)}
-                                            placeholder="مثال: قناة القرآن الكريم بث مباشر"
-                                            className="bg-gray-50 text-right"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">رابط يوتيوب (URL)</label>
-                                        <Input
-                                            required
-                                            type="url"
-                                            value={formUrl}
-                                            onChange={e => setFormUrl(e.target.value)}
-                                            placeholder="https://www.youtube.com/watch?v=..."
-                                            className="bg-gray-50 text-left"
-                                            dir="ltr"
-                                        />
-                                    </div>
-                                    <Button type="submit" disabled={isSubmitting} className="w-full bg-[#0f172a] hover:bg-[#0f172a]/90 text-white font-bold h-10 mt-2">
-                                        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ البث'}
+                        <div className="flex items-center justify-center gap-3 flex-wrap">
+                            {/* Add Stream Button */}
+                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white font-changa rounded-full px-6 shadow-md transition-all gap-2">
+                                        <Plus className="w-4 h-4" /> إضافة بث أو فيديو
                                     </Button>
-                                </form>
-                            </DialogContent>
-                        </Dialog>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-md bg-white font-changa" dir="rtl">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-xl font-bold text-[#0f172a] font-amiri">إضافة بث يوتيوب جديد</DialogTitle>
+                                    </DialogHeader>
+                                    <form onSubmit={handleAddStream} className="space-y-4 mt-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">اسم البث</label>
+                                            <Input
+                                                required
+                                                value={formTitle}
+                                                onChange={e => setFormTitle(e.target.value)}
+                                                placeholder="مثال: قناة القرآن الكريم بث مباشر"
+                                                className="bg-gray-50 text-right"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">رابط يوتيوب (URL)</label>
+                                            <Input
+                                                required
+                                                type="url"
+                                                value={formUrl}
+                                                onChange={e => setFormUrl(e.target.value)}
+                                                placeholder="https://www.youtube.com/watch?v=..."
+                                                className="bg-gray-50 text-left"
+                                                dir="ltr"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">التصنيف</label>
+                                            <select
+                                                value={formCategory}
+                                                onChange={e => setFormCategory(e.target.value)}
+                                                className="w-full h-10 px-3 rounded-md border border-gray-200 bg-gray-50 text-sm text-right focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent"
+                                            >
+                                                <option value="">بدون تصنيف</option>
+                                                {categories.map(cat => (
+                                                    <option key={cat._id} value={cat.name}>{cat.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <Button type="submit" disabled={isSubmitting} className="w-full bg-[#0f172a] hover:bg-[#0f172a]/90 text-white font-bold h-10 mt-2">
+                                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ البث'}
+                                        </Button>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+
+                            {/* Manage Categories Button */}
+                            <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white/20 font-changa rounded-full px-6 shadow-md transition-all gap-2">
+                                        <Tag className="w-4 h-4" /> إدارة التصنيفات
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-md bg-white font-changa" dir="rtl">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-xl font-bold text-[#0f172a] font-amiri">إدارة التصنيفات</DialogTitle>
+                                    </DialogHeader>
+                                    <form onSubmit={handleAddCategory} className="flex gap-2 mt-4">
+                                        <Input
+                                            value={newCategoryName}
+                                            onChange={e => setNewCategoryName(e.target.value)}
+                                            placeholder="اسم التصنيف الجديد..."
+                                            className="bg-gray-50 text-right flex-1"
+                                        />
+                                        <Button type="submit" disabled={isCategorySubmitting} className="bg-[#f97316] hover:bg-[#ea580c] text-white font-bold px-4 shrink-0">
+                                            {isCategorySubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                                        </Button>
+                                    </form>
+                                    <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
+                                        {categories.length === 0 ? (
+                                            <p className="text-center text-gray-400 text-sm py-4">لا توجد تصنيفات بعد</p>
+                                        ) : (
+                                            categories.map(cat => (
+                                                <div key={cat._id} className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2.5 group hover:bg-gray-100 transition-colors">
+                                                    <div className="flex items-center gap-2">
+                                                        <Tag className="w-3.5 h-3.5 text-[#f97316]" />
+                                                        <span className="font-bold text-sm text-[#0f172a]">{cat.name}</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleDeleteCategory(cat._id)}
+                                                        className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
                     )}
                 </div>
                 <div className="absolute top-0 left-0 w-full h-full opacity-5 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]" />
@@ -175,22 +294,72 @@ export default function Live() {
 
             <div className="container mx-auto px-4 max-w-7xl space-y-16">
 
+                {/* ✅ Category Filter Bar */}
+                {categories.length > 0 && (
+                    <div className="flex items-center gap-2 flex-wrap mt-10">
+                        <Filter className="w-4 h-4 text-gray-400 ml-1" />
+                        <button
+                            onClick={() => setSelectedCategory('')}
+                            className={`px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${selectedCategory === ''
+                                ? 'bg-[#0f172a] text-white shadow-md'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:border-[#f97316] hover:text-[#f97316]'
+                                }`}
+                        >
+                            الكل
+                        </button>
+                        {categories.map(cat => (
+                            <button
+                                key={cat._id}
+                                onClick={() => setSelectedCategory(cat.name)}
+                                className={`px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${selectedCategory === cat.name
+                                    ? 'bg-[#f97316] text-white shadow-md'
+                                    : 'bg-white text-gray-600 border border-gray-200 hover:border-[#f97316] hover:text-[#f97316]'
+                                    }`}
+                            >
+                                {cat.name}
+                            </button>
+                        ))}
+                        {selectedCategory && (
+                            <button
+                                onClick={() => setSelectedCategory('')}
+                                className="p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                title="إزالة الفلتر"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                )}
+
                 {/* ✅ TV Section */}
-                <section className="mt-10  " >
-                    <div className="flex items-center  gap-3 mb-6 pb-2 border-b border-gray-200">
+                <section className="mt-10">
+                    <div className="flex items-center gap-3 mb-6 pb-2 border-b border-gray-200">
                         <Tv className="w-6 h-6 text-[#f97316]" />
                         <h2 className="text-2xl font-bold font-amiri text-[#0f172a]">الفيديوهات والبث المرئي</h2>
-                        <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md">{tvStreams.length}</span>
+                        <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md">{filteredTvStreams.length}</span>
+                        {selectedCategory && (
+                            <span className="bg-[#f97316]/10 text-[#f97316] text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                                <Tag className="w-3 h-3" />
+                                {selectedCategory}
+                            </span>
+                        )}
                     </div>
 
-                    {tvStreams.length === 0 ? (
+                    {filteredTvStreams.length === 0 ? (
                         <div className="text-center py-12 bg-white rounded-2xl shadow-sm border border-dashed border-gray-300">
                             <Tv className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                            <h3 className="text-lg font-bold font-changa text-gray-800 mb-1">لا توجد فيديوهات أو قنوات مرئية حالياً</h3>
+                            <h3 className="text-lg font-bold font-changa text-gray-800 mb-1">
+                                {selectedCategory ? `لا توجد فيديوهات في تصنيف "${selectedCategory}"` : 'لا توجد فيديوهات أو قنوات مرئية حالياً'}
+                            </h3>
+                            {selectedCategory && (
+                                <button onClick={() => setSelectedCategory('')} className="mt-2 text-[#f97316] text-sm font-bold hover:underline">
+                                    عرض الكل
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {tvStreams.map((stream) => (
+                            {filteredTvStreams.map((stream) => (
                                 <div key={stream._id} className="relative group rounded-xl overflow-hidden shadow-md bg-white flex flex-col">
 
                                     {isAdmin && (
@@ -203,7 +372,7 @@ export default function Live() {
                                         </button>
                                     )}
 
-                                    {/* 🔥 Taller Video — 16:9 aspect ratio */}
+                                    {/* Video — 16:9 aspect ratio */}
                                     <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                                         <iframe
                                             src={getYouTubeEmbedUrl(stream.url)}
@@ -215,8 +384,14 @@ export default function Live() {
                                         <div className="absolute top-3 left-3 z-10 flex gap-2 pointer-events-none">
                                             <span className="px-2.5 py-1 text-[10px] font-bold rounded flex items-center gap-1 shadow-sm backdrop-blur-md bg-blue-500/90 text-white">
                                                 <Tv className="w-3 h-3" />
-                                                فيديو / بث
+                                                فيديو
                                             </span>
+                                            {stream.category && (
+                                                <span className="px-2.5 py-1 text-[10px] font-bold rounded flex items-center gap-1 shadow-sm backdrop-blur-md bg-[#f97316]/90 text-white">
+                                                    <Tag className="w-3 h-3" />
+                                                    {stream.category}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
 
