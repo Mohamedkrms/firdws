@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Headphones, Play, Pause, User, Music, Search, BookOpen, GraduationCap } from 'lucide-react';
+import { Headphones, Play, Pause, User, Music, Search, BookOpen, GraduationCap, Filter, X, Tag } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +15,12 @@ import { RECITERS_DATA } from '@/components/recitersdata';
 
 import { SCHOLARS_DATA } from '@/components/scholarsData';
 
+// Extract the series/category name from a lecture title (text before " - ")
+function extractLectureCategory(title) {
+    const sep = title.indexOf(' - ');
+    if (sep > 0) return title.substring(0, sep).trim();
+    return null;
+}
 
 function Listen() {
     const { reciterId } = useParams();
@@ -27,6 +33,7 @@ function Listen() {
     const [loading, setLoading] = useState(true);
     const [filterReciter, setFilterReciter] = useState('');
     const [activeTab, setActiveTab] = useState('reciters'); // 'reciters' or 'scholars'
+    const [selectedCategory, setSelectedCategory] = useState('');
 
     useEffect(() => {
         if (reciterId) {
@@ -40,6 +47,7 @@ function Listen() {
 
             if (reciter) {
                 setSelectedReciter(reciter);
+                setSelectedCategory(''); // Reset filter on reciter change
                 // Scroll to content list after a brief delay
                 setTimeout(() => {
                     const element = document.getElementById('content-list');
@@ -69,6 +77,25 @@ function Listen() {
 
     const { playTrack, currentAudio, isPlaying: isGlobalPlaying } = useAudio();
 
+    // Build categories for the current detail view
+    const detailCategories = useMemo(() => {
+        if (!selectedReciter) return [];
+        const isScholar = !!selectedReciter.lectures;
+
+        if (isScholar) {
+            // Extract unique series names from lecture titles
+            const cats = new Set();
+            selectedReciter.lectures.forEach(l => {
+                const cat = extractLectureCategory(l.title);
+                if (cat) cats.add(cat);
+            });
+            return Array.from(cats);
+        } else {
+            // For reciters (Quran surahs) — filter by revelation type
+            return ['مكية', 'مدنية'];
+        }
+    }, [selectedReciter, surahs]);
+
     if (loading) {
         return (
             <div className="container mx-auto px-4 py-12 space-y-8">
@@ -80,39 +107,56 @@ function Listen() {
         );
     }
 
-    const handlePlaySurah = (reciter, surahIndex) => {
-        const surah = surahs[surahIndex];
+    const handlePlaySurah = (reciter, surah) => {
         if (!surah) return;
         const chapterNum = String(surah.id).padStart(3, '0');
         const url = `https://download.quranicaudio.com/quran/${reciter.slug}/${chapterNum}.mp3`;
 
+        // Find real index in original surahs for playlist continuity
+        const realIndex = surahs.findIndex(s => s.id === surah.id);
         playTrack({
             url,
             title: surah.name_arabic,
             reciter: reciter.name,
             id: surah.id
-        }, surahs, reciter, surahIndex);
+        }, surahs, reciter, realIndex);
     };
 
-    const handlePlayLecture = (scholar, lectureIndex) => {
-        const lecture = scholar.lectures[lectureIndex];
+    const handlePlayLecture = (scholar, lecture) => {
         if (!lecture) return;
 
+        // Find real index in original lectures array for playlist continuity
+        const realIndex = scholar.lectures.findIndex(l => l.id === lecture.id);
         playTrack({
             url: lecture.url,
             title: lecture.title,
             reciter: scholar.name,
             id: lecture.id
-        }, scholar.lectures, scholar, lectureIndex);
+        }, scholar.lectures, scholar, realIndex);
     };
 
 
     // Detail View (Single Reciter OR Scholar)
     if (reciterId && selectedReciter) {
         const isScholar = !!selectedReciter.lectures; // Simple check if it's a scholar object
-        const contentList = isScholar ? selectedReciter.lectures : surahs;
+        const rawContentList = isScholar ? selectedReciter.lectures : surahs;
         const listTitle = isScholar ? "قائمة الدروس والمحاضرات" : "قائمة السور";
         const ListIcon = isScholar ? GraduationCap : Music;
+
+        // Apply category filter
+        const contentList = selectedCategory
+            ? rawContentList.filter(item => {
+                if (isScholar) {
+                    const cat = extractLectureCategory(item.title);
+                    return cat === selectedCategory;
+                } else {
+                    // Surah revelation type filter
+                    if (selectedCategory === 'مكية') return item.revelation_place === 'makkah';
+                    if (selectedCategory === 'مدنية') return item.revelation_place === 'madinah';
+                    return true;
+                }
+            })
+            : rawContentList;
 
         return (
             <div className={`min-h-screen bg-background pb-20 ${currentAudio ? 'pb-32' : ''}`}>
@@ -158,6 +202,52 @@ function Listen() {
                 </div>
 
                 <div className="container mx-auto px-4 py-8 space-y-6" id="content-list">
+
+                    {/* Category Filter Bar */}
+                    {detailCategories.length > 0 && (
+                        <div className="flex items-center gap-2 flex-wrap" dir="rtl">
+                            <Filter className="w-4 h-4 text-gray-400 ml-1" />
+                            <button
+                                onClick={() => setSelectedCategory('')}
+                                className={`px-4 py-2 rounded-full text-sm font-bold font-changa transition-all duration-200 ${selectedCategory === ''
+                                        ? 'bg-[#0f172a] text-white shadow-md'
+                                        : 'bg-white text-gray-600 border border-gray-200 hover:border-[#f97316] hover:text-[#f97316]'
+                                    }`}
+                            >
+                                الكل ({rawContentList.length})
+                            </button>
+                            {detailCategories.map(cat => {
+                                const count = rawContentList.filter(item => {
+                                    if (isScholar) return extractLectureCategory(item.title) === cat;
+                                    if (cat === 'مكية') return item.revelation_place === 'makkah';
+                                    if (cat === 'مدنية') return item.revelation_place === 'madinah';
+                                    return false;
+                                }).length;
+                                return (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setSelectedCategory(cat)}
+                                        className={`px-4 py-2 rounded-full text-sm font-bold font-changa transition-all duration-200 ${selectedCategory === cat
+                                                ? 'bg-[#f97316] text-white shadow-md'
+                                                : 'bg-white text-gray-600 border border-gray-200 hover:border-[#f97316] hover:text-[#f97316]'
+                                            }`}
+                                    >
+                                        {cat} ({count})
+                                    </button>
+                                );
+                            })}
+                            {selectedCategory && (
+                                <button
+                                    onClick={() => setSelectedCategory('')}
+                                    className="p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                    title="إزالة الفلتر"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
+                    )}
+
                     {/* Content List */}
                     <div className="bg-white rounded-xl shadow-sm border p-6">
                         <div className="flex items-center gap-3 mb-6 border-b pb-4">
@@ -165,59 +255,80 @@ function Listen() {
                                 <ListIcon className="w-5 h-5 text-[#f97316]" />
                                 {listTitle}
                             </h2>
+                            <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md">{contentList.length}</span>
+                            {selectedCategory && (
+                                <span className="bg-[#f97316]/10 text-[#f97316] text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                                    <Tag className="w-3 h-3" />
+                                    {selectedCategory}
+                                </span>
+                            )}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {contentList.map((item, index) => {
-                                const itemTitle = isScholar ? item.title : item.name_arabic;
-                                const isCurrentTrack = currentAudio?.title === itemTitle && currentAudio?.reciter === selectedReciter.name;
-                                const isPlaying = isCurrentTrack && isGlobalPlaying;
+                        {contentList.length === 0 ? (
+                            <div className="text-center py-12">
+                                <ListIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                                <h3 className="text-lg font-bold font-changa text-gray-600 mb-1">
+                                    {selectedCategory ? `لا توجد نتائج في "${selectedCategory}"` : 'لا يوجد محتوى'}
+                                </h3>
+                                {selectedCategory && (
+                                    <button onClick={() => setSelectedCategory('')} className="mt-2 text-[#f97316] text-sm font-bold hover:underline font-changa">
+                                        عرض الكل
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {contentList.map((item, index) => {
+                                    const itemTitle = isScholar ? item.title : item.name_arabic;
+                                    const isCurrentTrack = currentAudio?.title === itemTitle && currentAudio?.reciter === selectedReciter.name;
+                                    const isPlaying = isCurrentTrack && isGlobalPlaying;
 
-                                return (
-                                    <div
-                                        key={item.id}
-                                        onClick={() => isScholar ? handlePlayLecture(selectedReciter, index) : handlePlaySurah(selectedReciter, index)}
-                                        className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer hover:shadow-md font-changa
-                                            ${isCurrentTrack
-                                                ? 'bg-[#f97316]/5 border-[#f97316] ring-1 ring-[#f97316]'
-                                                : 'bg-white hover:border-[#f97316]/30'
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-3 overflow-hidden">
-                                            <div className={`w-10 h-10 rounded-lg flex shrink-0 items-center justify-center font-bold text-sm transition-colors
-                                                ${isCurrentTrack ? 'bg-[#f97316] text-white' : 'bg-gray-100 text-gray-600'}`}>
-                                                {index + 1}
-                                            </div>
-                                            <div className="truncate">
-                                                <p className={`font-bold text-sm truncate ${isCurrentTrack ? 'text-[#f97316]' : 'text-slate-800'}`}>
-                                                    {itemTitle}
-                                                </p>
-                                                {!isScholar && (
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {item.translated_name.name}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                            {isPlaying && (
-                                                <div className="flex gap-0.5 h-3 items-end">
-                                                    <span className="w-0.5 h-full bg-[#f97316] animate-[bounce_1s_infinite]" />
-                                                    <span className="w-0.5 h-2/3 bg-[#f97316] animate-[bounce_1.2s_infinite]" />
-                                                    <span className="w-0.5 h-full bg-[#f97316] animate-[bounce_0.8s_infinite]" />
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            onClick={() => isScholar ? handlePlayLecture(selectedReciter, item) : handlePlaySurah(selectedReciter, item)}
+                                            className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer hover:shadow-md font-changa
+                                                ${isCurrentTrack
+                                                    ? 'bg-[#f97316]/5 border-[#f97316] ring-1 ring-[#f97316]'
+                                                    : 'bg-white hover:border-[#f97316]/30'
+                                                }`}
+                                        >
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                <div className={`w-10 h-10 rounded-lg flex shrink-0 items-center justify-center font-bold text-sm transition-colors
+                                                    ${isCurrentTrack ? 'bg-[#f97316] text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                                    {index + 1}
                                                 </div>
-                                            )}
-                                            <Button
-                                                size="icon" variant={isCurrentTrack ? "default" : "ghost"}
-                                                className={`h-8 w-8 rounded-full ${isCurrentTrack ? 'bg-[#f97316] hover:bg-[#e0650d]' : 'hover:bg-[#f97316]/10 hover:text-[#f97316]'}`}
-                                            >
-                                                {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
-                                            </Button>
+                                                <div className="truncate">
+                                                    <p className={`font-bold text-sm truncate ${isCurrentTrack ? 'text-[#f97316]' : 'text-slate-800'}`}>
+                                                        {itemTitle}
+                                                    </p>
+                                                    {!isScholar && (
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {item.translated_name.name}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                {isPlaying && (
+                                                    <div className="flex gap-0.5 h-3 items-end">
+                                                        <span className="w-0.5 h-full bg-[#f97316] animate-[bounce_1s_infinite]" />
+                                                        <span className="w-0.5 h-2/3 bg-[#f97316] animate-[bounce_1.2s_infinite]" />
+                                                        <span className="w-0.5 h-full bg-[#f97316] animate-[bounce_0.8s_infinite]" />
+                                                    </div>
+                                                )}
+                                                <Button
+                                                    size="icon" variant={isCurrentTrack ? "default" : "ghost"}
+                                                    className={`h-8 w-8 rounded-full ${isCurrentTrack ? 'bg-[#f97316] hover:bg-[#e0650d]' : 'hover:bg-[#f97316]/10 hover:text-[#f97316]'}`}
+                                                >
+                                                    {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
