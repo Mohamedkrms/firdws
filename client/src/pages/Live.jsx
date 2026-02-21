@@ -34,6 +34,19 @@ function getYouTubeEmbedUrl(url) {
         : url;
 }
 
+function getYouTubeVideoId(url) {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|live\/|shorts\/)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+function getYouTubeThumbnail(url) {
+    const videoId = getYouTubeVideoId(url);
+    if (!videoId) return null;
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+}
+
 export default function Live() {
     const { user } = useUser();
     const { playTrack, currentAudio, isPlaying, togglePlay } = useAudio();
@@ -359,50 +372,107 @@ export default function Live() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {filteredTvStreams.map((stream) => (
-                                <div key={stream._id} className="relative group rounded-xl overflow-hidden shadow-md bg-white flex flex-col">
+                            {filteredTvStreams.map((stream) => {
+                                const videoId = getYouTubeVideoId(stream.url);
+                                const thumbnail = getYouTubeThumbnail(stream.url);
+                                const isCurrentTrack = currentAudio?.youtubeVideoId === videoId && videoId;
+                                const isCurrentlyPlaying = isCurrentTrack && isPlaying;
 
-                                    {isAdmin && (
-                                        <button
-                                            onClick={() => handleDelete(stream._id)}
-                                            className="absolute top-2 right-2 z-20 bg-red-500/90 hover:bg-red-600 text-white p-2 rounded-lg shadow-sm transition-colors opacity-0 group-hover:opacity-100"
-                                            title="حذف البث"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    )}
+                                return (
+                                    <div
+                                        key={stream._id}
+                                        onClick={() => {
+                                            if (isCurrentTrack) {
+                                                togglePlay();
+                                            } else if (videoId) {
+                                                playTrack({
+                                                    url: stream.url,
+                                                    title: stream.title,
+                                                    reciter: 'البث المباشر',
+                                                    id: stream._id,
+                                                    youtubeVideoId: videoId
+                                                }, [], null, -1);
+                                            }
+                                        }}
+                                        className={`relative group rounded-xl overflow-hidden shadow-md bg-white flex flex-col cursor-pointer transition-all duration-300
+                                            ${isCurrentTrack ? 'ring-2 ring-[#f97316] shadow-lg' : 'hover:shadow-lg'}`}
+                                    >
 
-                                    {/* Video — 16:9 aspect ratio */}
-                                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                                        <iframe
-                                            src={getYouTubeEmbedUrl(stream.url)}
-                                            className="absolute top-0 left-0 w-full h-full"
-                                            allowFullScreen
-                                            frameBorder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        />
-                                        <div className="absolute top-3 left-3 z-10 flex gap-2 pointer-events-none">
-                                            <span className="px-2.5 py-1 text-[10px] font-bold rounded flex items-center gap-1 shadow-sm backdrop-blur-md bg-blue-500/90 text-white">
-                                                <Tv className="w-3 h-3" />
-                                                فيديو
-                                            </span>
-                                            {stream.category && (
-                                                <span className="px-2.5 py-1 text-[10px] font-bold rounded flex items-center gap-1 shadow-sm backdrop-blur-md bg-[#f97316]/90 text-white">
-                                                    <Tag className="w-3 h-3" />
-                                                    {stream.category}
-                                                </span>
+                                        {isAdmin && (
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleDelete(stream._id); }}
+                                                className="absolute top-2 right-2 z-20 bg-red-500/90 hover:bg-red-600 text-white p-2 rounded-lg shadow-sm transition-colors opacity-0 group-hover:opacity-100"
+                                                title="حذف البث"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        )}
+
+                                        {/* Thumbnail with play overlay */}
+                                        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                                            {thumbnail ? (
+                                                <img
+                                                    src={thumbnail}
+                                                    alt={stream.title}
+                                                    className="absolute top-0 left-0 w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="absolute top-0 left-0 w-full h-full bg-[#0f172a] flex items-center justify-center">
+                                                    <Tv className="w-12 h-12 text-white/20" />
+                                                </div>
                                             )}
+
+                                            {/* Play button overlay */}
+                                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
+                                                <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${isCurrentTrack
+                                                        ? 'bg-[#f97316] scale-110'
+                                                        : 'bg-white/90 group-hover:bg-[#f97316] group-hover:scale-110'
+                                                    }`}>
+                                                    {isCurrentlyPlaying ? (
+                                                        <Pause className={`w-7 h-7 ${isCurrentTrack ? 'text-white' : 'text-[#0f172a] group-hover:text-white'}`} />
+                                                    ) : (
+                                                        <Play className={`w-7 h-7 ml-1 ${isCurrentTrack ? 'text-white' : 'text-[#0f172a] group-hover:text-white'}`} />
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Sound bars when playing */}
+                                            {isCurrentlyPlaying && (
+                                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 h-4 items-end z-10">
+                                                    <span className="w-1 h-full bg-[#f97316] animate-[bounce_1s_infinite]" />
+                                                    <span className="w-1 h-2/3 bg-[#f97316] animate-[bounce_1.2s_infinite]" />
+                                                    <span className="w-1 h-full bg-[#f97316] animate-[bounce_0.8s_infinite]" />
+                                                    <span className="w-1 h-1/2 bg-[#f97316] animate-[bounce_1.1s_infinite]" />
+                                                    <span className="w-1 h-4/5 bg-[#f97316] animate-[bounce_0.9s_infinite]" />
+                                                </div>
+                                            )}
+
+                                            {/* Badges */}
+                                            <div className="absolute top-3 left-3 z-10 flex gap-2 pointer-events-none">
+                                                <span className="px-2.5 py-1 text-[10px] font-bold rounded flex items-center gap-1 shadow-sm backdrop-blur-md bg-blue-500/90 text-white">
+                                                    <Tv className="w-3 h-3" />
+                                                    فيديو
+                                                </span>
+                                                {stream.category && (
+                                                    <span className="px-2.5 py-1 text-[10px] font-bold rounded flex items-center gap-1 shadow-sm backdrop-blur-md bg-[#f97316]/90 text-white">
+                                                        <Tag className="w-3 h-3" />
+                                                        {stream.category}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className="p-4 flex-1 flex flex-col justify-center text-center">
-                                        <h3 className="text-xl font-bold text-[#0f172a] font-amiri group-hover:text-[#f97316] transition-colors line-clamp-2">
-                                            {stream.title}
-                                        </h3>
-                                    </div>
+                                        <div className={`p-4 flex-1 flex flex-col justify-center text-center transition-colors border-t ${isCurrentTrack ? 'bg-[#f97316]/5 border-[#f97316]/20' : 'bg-white border-gray-100'
+                                            }`}>
+                                            <h3 className={`text-xl font-bold font-amiri transition-colors line-clamp-2 ${isCurrentTrack ? 'text-[#f97316]' : 'text-[#0f172a] group-hover:text-[#f97316]'
+                                                }`}>
+                                                {stream.title}
+                                            </h3>
+                                        </div>
 
-                                </div>
-                            ))}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </section>
