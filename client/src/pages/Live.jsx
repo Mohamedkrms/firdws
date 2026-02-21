@@ -373,6 +373,55 @@ export default function Live() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {filteredTvStreams.map((stream) => {
+                                const isGlobalPlayerVideo = stream.category === 'بث مباشر';
+
+                                if (!isGlobalPlayerVideo) {
+                                    return (
+                                        <div key={stream._id} className="relative group rounded-xl overflow-hidden shadow-md bg-white flex flex-col">
+
+                                            {isAdmin && (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleDelete(stream._id); }}
+                                                    className="absolute top-2 right-2 z-20 bg-red-500/90 hover:bg-red-600 text-white p-2 rounded-lg shadow-sm transition-colors opacity-0 group-hover:opacity-100"
+                                                    title="حذف البث"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
+
+                                            {/* Video — 16:9 aspect ratio */}
+                                            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                                                <iframe
+                                                    src={getYouTubeEmbedUrl(stream.url)}
+                                                    className="absolute top-0 left-0 w-full h-full"
+                                                    allowFullScreen
+                                                    frameBorder="0"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                />
+                                                <div className="absolute top-3 left-3 z-10 flex gap-2 pointer-events-none">
+                                                    <span className="px-2.5 py-1 text-[10px] font-bold rounded flex items-center gap-1 shadow-sm backdrop-blur-md bg-blue-500/90 text-white">
+                                                        <Tv className="w-3 h-3" />
+                                                        فيديو
+                                                    </span>
+                                                    {stream.category && (
+                                                        <span className="px-2.5 py-1 text-[10px] font-bold rounded flex items-center gap-1 shadow-sm backdrop-blur-md bg-[#f97316]/90 text-white">
+                                                            <Tag className="w-3 h-3" />
+                                                            {stream.category}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 flex-1 flex flex-col justify-center text-center">
+                                                <h3 className="text-xl font-bold text-[#0f172a] font-amiri group-hover:text-[#f97316] transition-colors line-clamp-2">
+                                                    {stream.title}
+                                                </h3>
+                                            </div>
+
+                                        </div>
+                                    );
+                                }
+
                                 const videoId = getYouTubeVideoId(stream.url);
                                 const thumbnail = getYouTubeThumbnail(stream.url);
                                 const isCurrentTrack = currentAudio?.youtubeVideoId === videoId && videoId;
@@ -425,8 +474,8 @@ export default function Live() {
                                             {/* Play button overlay */}
                                             <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
                                                 <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${isCurrentTrack
-                                                        ? 'bg-[#f97316] scale-110'
-                                                        : 'bg-white/90 group-hover:bg-[#f97316] group-hover:scale-110'
+                                                    ? 'bg-[#f97316] scale-110'
+                                                    : 'bg-white/90 group-hover:bg-[#f97316] group-hover:scale-110'
                                                     }`}>
                                                     {isCurrentlyPlaying ? (
                                                         <Pause className={`w-7 h-7 ${isCurrentTrack ? 'text-white' : 'text-[#0f172a] group-hover:text-white'}`} />

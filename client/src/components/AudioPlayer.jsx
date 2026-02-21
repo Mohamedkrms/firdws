@@ -98,7 +98,11 @@ function AudioPlayer() {
                     events: {
                         onReady: (event) => {
                             event.target.setVolume(volume * 100);
-                            if (isPlaying) event.target.playVideo();
+                            if (isPlaying) {
+                                event.target.playVideo();
+                            } else {
+                                event.target.pauseVideo();
+                            }
                             setDuration(event.target.getDuration());
 
                             // Timer to update currentTime
@@ -243,8 +247,8 @@ function AudioPlayer() {
             {isYouTube && (
                 <div
                     className={`fixed z-[60] transition-all duration-300 shadow-2xl rounded-xl overflow-hidden border border-gray-200 bg-black ${ytExpanded
-                            ? 'bottom-[80px] right-4 w-[480px] h-[270px]'
-                            : 'bottom-[80px] right-4 w-[240px] h-[135px]'
+                        ? 'bottom-[80px] right-4 w-[480px] h-[270px]'
+                        : 'bottom-[80px] right-4 w-[240px] h-[135px]'
                         }`}
                 >
                     {/* Expand/collapse button */}
