@@ -32,7 +32,6 @@ function AudioPlayer() {
     const { currentAudio, isPlaying, setIsPlaying, playNext, playPrev, hasNext, hasPrev, togglePlay, clearAudio, youtubeVideoId } = useAudio();
     const audioRef = useRef(null);
     const ytPlayerRef = useRef(null);
-    const ytContainerRef = useRef(null);
     const ytTimerRef = useRef(null);
 
     const [currentTime, setCurrentTime] = useState(0);
@@ -40,6 +39,12 @@ function AudioPlayer() {
     const [volume, setVolume] = useState(0.8);
     const [muted, setMuted] = useState(false);
     const [ytExpanded, setYtExpanded] = useState(false);
+    const [isBuffering, setIsBuffering] = useState(false);
+
+    // Preload YT API
+    useEffect(() => {
+        loadYouTubeApi();
+    }, []);
 
     // Regular audio volume
     useEffect(() => {
@@ -83,8 +88,11 @@ function AudioPlayer() {
             }
 
             // Create new player
-            if (ytContainerRef.current) {
-                ytPlayerRef.current = new window.YT.Player(ytContainerRef.current, {
+            const wrapper = document.getElementById('yt-player-wrapper');
+            if (wrapper) {
+                wrapper.innerHTML = '<div id="yt-player-target" class="w-full h-full"></div>';
+
+                ytPlayerRef.current = new window.YT.Player('yt-player-target', {
                     videoId: youtubeVideoId,
                     playerVars: {
                         autoplay: 1,
@@ -94,6 +102,7 @@ function AudioPlayer() {
                         showinfo: 0,
                         fs: 0,
                         playsinline: 1,
+                        origin: window.location.origin
                     },
                     events: {
                         onReady: (event) => {
@@ -114,7 +123,9 @@ function AudioPlayer() {
                             }, 500);
                         },
                         onStateChange: (event) => {
-                            // YT.PlayerState: 0=ended, 1=playing, 2=paused
+                            // YT.PlayerState: -1=unstarted, 0=ended, 1=playing, 2=paused, 3=buffering, 5=cued
+                            setIsBuffering(event.data === 3);
+
                             if (event.data === 0) {
                                 setIsPlaying(false);
                                 if (hasNext) playNext();
@@ -123,6 +134,9 @@ function AudioPlayer() {
                             } else if (event.data === 2) {
                                 setIsPlaying(false);
                             }
+                        },
+                        onError: (e) => {
+                            console.error("YouTube Player Error", e.data);
                         }
                     }
                 });
@@ -141,9 +155,11 @@ function AudioPlayer() {
     useEffect(() => {
         if (!youtubeVideoId || !ytPlayerRef.current) return;
         try {
-            if (isPlaying && typeof ytPlayerRef.current.playVideo === 'function') {
+            const playerState = typeof ytPlayerRef.current.getPlayerState === 'function' ? ytPlayerRef.current.getPlayerState() : -1;
+
+            if (isPlaying && typeof ytPlayerRef.current.playVideo === 'function' && playerState !== 1) {
                 ytPlayerRef.current.playVideo();
-            } else if (!isPlaying && typeof ytPlayerRef.current.pauseVideo === 'function') {
+            } else if (!isPlaying && typeof ytPlayerRef.current.pauseVideo === 'function' && playerState === 1) {
                 ytPlayerRef.current.pauseVideo();
             }
         } catch (e) { }
@@ -189,7 +205,7 @@ function AudioPlayer() {
     };
 
     const formatTime = (t) => {
-        if (isNaN(t)) return '0:00';
+        if (isNaN(t) || !isFinite(t)) return '0:00';
         const m = Math.floor(t / 60);
         const s = Math.floor(t % 60);
         return `${m}:${s.toString().padStart(2, '0')}`;
@@ -237,57 +253,55 @@ function AudioPlayer() {
         clearAudio();
     };
 
-    if (!currentAudio) return null;
-
     const isYouTube = !!youtubeVideoId;
+    const isVisible = !!currentAudio;
 
     return (
-        <>
-            {/* YouTube Player Container - floating mini-player */}
-            {isYouTube && (
-                <div
-                    className={`fixed z-[60] transition-all duration-300 shadow-2xl rounded-xl overflow-hidden border border-gray-200 bg-black ${ytExpanded
-                        ? 'bottom-[80px] right-4 w-[480px] h-[270px]'
-                        : 'bottom-[80px] right-4 w-[240px] h-[135px]'
-                        }`}
+        <div className={isVisible ? "block" : "hidden"}>
+            {/* YouTube Player Container - floating mini-player. ALWAYS RENDERED but hidden visually if not YT */}
+            <div
+                className={`fixed z-[60] transition-all duration-300 shadow-2xl rounded-xl overflow-hidden border border-gray-200 bg-black ${!isYouTube ? 'hidden' :
+                        ytExpanded
+                            ? 'bottom-[80px] right-4 w-[480px] h-[270px]'
+                            : 'bottom-[80px] right-4 w-[240px] h-[135px]'
+                    }`}
+            >
+                {/* Expand/collapse button */}
+                <button
+                    onClick={() => setYtExpanded(!ytExpanded)}
+                    className="absolute top-2 left-2 z-10 bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-lg transition-colors"
                 >
-                    {/* Expand/collapse button */}
-                    <button
-                        onClick={() => setYtExpanded(!ytExpanded)}
-                        className="absolute top-2 left-2 z-10 bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-lg transition-colors"
-                    >
-                        {ytExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-                    </button>
-                    <div ref={ytContainerRef} className="w-full h-full" />
-                </div>
-            )}
+                    {ytExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                </button>
+                <div id="yt-player-wrapper" className="w-full h-full pointer-events-auto" />
+            </div>
 
             <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-[0_-5px_20px_rgba(0,0,0,0.05)] py-2">
-                {/* Regular audio element (hidden when YouTube is active) */}
-                {!isYouTube && (
-                    <audio
-                        ref={audioRef}
-                        onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
-                        onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
-                        onEnded={() => {
-                            setIsPlaying(false);
-                            if (hasNext) playNext();
-                        }}
-                    />
-                )}
+                {/* Regular audio element */}
+                <audio
+                    ref={audioRef}
+                    className="hidden"
+                    onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
+                    onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
+                    onEnded={() => {
+                        setIsPlaying(false);
+                        if (hasNext) playNext();
+                    }}
+                />
 
                 <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-4">
 
                     {/* Track Info */}
                     <div className="flex items-center gap-3 w-full md:w-1/4">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${isYouTube ? 'bg-red-500/10 text-red-500' : 'bg-primary/10 text-primary'}`}>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold relative ${isYouTube ? 'bg-red-500/10 text-red-500' : 'bg-primary/10 text-primary'}`}>
+                            {isBuffering && <span className="absolute inset-0 rounded-lg border-2 border-primary border-t-transparent animate-spin" />}
                             {isYouTube ? <Tv className="w-5 h-5" /> : '♫'}
                         </div>
                         <div className="min-w-0">
-                            <p className="font-bold text-sm truncate">{currentAudio.title}</p>
+                            <p className="font-bold text-sm truncate">{currentAudio?.title}</p>
                             <p className="text-xs text-muted-foreground truncate">
                                 {isYouTube && <span className="text-red-500 font-bold ml-1">YouTube</span>}
-                                {currentAudio.reciter}
+                                {currentAudio?.reciter}
                             </p>
                         </div>
                     </div>
@@ -356,7 +370,7 @@ function AudioPlayer() {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 
