@@ -41,7 +41,7 @@ export default function Books() {
             <div className="bg-[#0f172a] text-white py-12 relative overflow-hidden">
                 <div className="container mx-auto px-4 text-center relative z-10">
                     <div className="flex justify-center mb-4">
-                        <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
+                        <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 backdrop-blur border border-white/10 text-[#f97316]">
                             <Library className="w-8 h-8 text-[#f97316]" />
                         </div>
                     </div>

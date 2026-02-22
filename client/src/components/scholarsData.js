@@ -4,7 +4,7 @@ export const SCHOLARS_DATA = [
         id: 101,
         name: "ابن عثيمين",
         slug: "uthaymeen",
-        img: "https://static.surah.com/images/scholars/uthaymeen.jpg",
+        img: "https://ik.imagekit.io/ajr/ulama/AVT_shaykh-Al-Uthaymin_8112.webp",
         style: "شروحات ودروس",
         description: "العلامة محمد بن صالح العثيمين، من كبار علماء العصر، تميز بأسلوبه العلمي الرصين وشروحاته الماتعة.",
         lectures: [
@@ -72,7 +72,7 @@ export const SCHOLARS_DATA = [
         id: 103,
         name: "الألباني",
         slug: "albani",
-        img: "https://static.surah.com/images/scholars/albani.jpg",
+        img: "https://ik.imagekit.io/ajr/ulama/Untitled3232-1.webp",
         style: "حديث وسنة",
         description: "المحدث محمد ناصر الدين الألباني، مجدد العصر في علم الحديث، صاحب السلسلة الصحيحة والضعيفة.",
         lectures: [
@@ -86,7 +86,7 @@ export const SCHOLARS_DATA = [
         id: 104,
         name: "صالح الفوزان",
         slug: "alfawzan",
-        img: "https://wp.quran.com/wp-content/uploads/2014/10/fawzan.jpg",
+        img: "https://ik.imagekit.io/ajr/ulama/Saleh_Al-Fawzan.jpg",
         style: "عقيدة وفقه",
         description: "العلامة صالح بن فوزان الفوزان، عضو هيئة كبار العلماء، من أبرز المراجع العلمية المعاصرة.",
         lectures: [
@@ -102,7 +102,7 @@ export const SCHOLARS_DATA = [
         id: 105,
         name: "عبد الرزاق البدر",
         slug: "albadr",
-        img: "https://al-badr.net/images/albadr-header.png",
+        img: "https://ik.imagekit.io/ajr/ulama/channels4_profile.jpg",
         style: "عقيدة وأخلاق",
         description: "الشيخ د. عبد الرزاق بن عبد المحسن البدر، المدرس بالمسجد النبوي الشريف، يتميز بأسلوبه المؤثر واهتمامه بشرح العقيدة والمتون.",
         lectures: [
@@ -118,7 +118,7 @@ export const SCHOLARS_DATA = [
         id: 106,
         name: "سليمان الرحيلي",
         slug: "ruhaily",
-        img: "https://pbs.twimg.com/profile_images/1454559869680324622/CIsG-Gq7_400x400.jpg",
+        img: "https://ik.imagekit.io/ajr/ulama/artworks-000201388657-x90hri-t500x500.jpg",
         style: "فقه وأصول",
         description: "الشيخ أ.د سليمان بن سليم الله الرحيلي، المدرس بالمسجد النبوي الشريف، وإمام مسجد قباء، عرف بالتأصيل الفقهي الدقيق.",
         lectures: [
@@ -131,11 +131,11 @@ export const SCHOLARS_DATA = [
     },
     {
         id: 107,
-        name: "مقبل بن هادي الوادعي",
+        name: "صالح اللحيدان",
         slug: "alwadii",
-        img: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Muqbil_bin_Hadi_al-Wadi%27i.jpg",
+        img: "https://ik.imagekit.io/ajr/ulama/%D8%B5%D8%A7%D9%84%D8%AD_%D8%A7%D9%84%D9%84%D8%AD%D9%8A%D8%AF%D8%A7%D9%86.jpg",
         style: "حديث وعقيدة",
-        description: "محدث الديار اليمنية، ومؤسس دار الحديث بدماج، العلامة مقبل بن هادي الوادعي رحمه الله، القائم بالدعوة السلفية باليمن.",
+        description: "الشيخ صالح بن محمد اللحيدان، من كبار العلماء في عصرنا الحالي، يتميز بأسلوبه العلمي الرصين وشروحاته الماتعة.",
         lectures: [
             { id: 1, title: "فتاوى متنوعة - 1", url: "https://archive.org/download/Fatawa_Wadii/01.mp3" },
             { id: 2, title: "فتاوى متنوعة - 2", url: "https://archive.org/download/Fatawa_Wadii/02.mp3" },
@@ -148,7 +148,7 @@ export const SCHOLARS_DATA = [
         id: 108,
         name: "صالح آل الشيخ",
         slug: "alalsheikh",
-        img: "https://upload.wikimedia.org/wikipedia/commons/1/14/Saleh_Al_Sheikh.jpg",
+        img: "https://ik.imagekit.io/ajr/ulama/al_lshykh.jpg",
         style: "عقيدة وتأصيل",
         description: "معالي الشيخ صالح بن عبد العزيز آل الشيخ، وزير الشؤون الإسلامية سابقاً، من كبار المحققين في علم العقيدة والتوحيد.",
         lectures: [

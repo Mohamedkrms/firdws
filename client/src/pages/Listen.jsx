@@ -385,7 +385,7 @@ function Listen() {
                             </div>
                         </div>
 
-                        <ScrollArea className="h-[900px] w-full pr-4">
+                        <ScrollArea className="h-[1900px] w-full pr-4">
                             <TabsContent value="reciters" className="mt-0">
                                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 text-center">
                                     {filteredReciters.map(reciter => (
