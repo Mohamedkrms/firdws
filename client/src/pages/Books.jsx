@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Search, BookOpen, Download, Library, Heart, Sparkles, Shield, Book, Home, X, Scroll, Scale, Users, Bookmark } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from "@/components/ui/button";
+import SEO from '@/components/SEO';
 import {
     Dialog,
     DialogContent,
@@ -37,6 +38,12 @@ export default function Books() {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-24 font-changa" dir="rtl">
+            <SEO
+                title="المكتبة الإسلامية"
+                description="تصفح وحمل الآلاف من الكتب الإسلامية القيمة في مجالات العقيدة والفقه والتفسير والحديث."
+                keywords="كتب إسلامية, مكتبة إسلامية, تحميل كتب, عقيدة, فقه, تفسير"
+                url="/books"
+            />
             {/* Header / Hero Section (Navy) - Matches Home.jsx */}
             <div className="bg-[#0f172a] text-white py-12 relative overflow-hidden">
                 <div className="container mx-auto px-4 text-center relative z-10">

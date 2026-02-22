@@ -8,6 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RECITERS_DATA } from '@/components/recitersdata';
 import { API_URL } from '@/config';
+import SEO from '@/components/SEO';
+
 function Home() {
     const [surahs, setSurahs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,9 +38,24 @@ function Home() {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-20">
+            <SEO
+                title="الصفحة الرئيسية"
+                description="موقع أجر - القرآن الكريم والسنة النبوية، استمع واقرأ وتدبر في آيات الله"
+                keywords="القرآن الكريم, استماع, قراءة, مكتوب, أحاديث, سنة نبوية, تلاوات"
+                url="/"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "WebSite",
+                    "name": "أجر",
+                    "url": "https://ajr.app/"
+                }}
+            />
             {/* Header / Hero Section (Navy) */}
             <div className="bg-[#0f172a] text-white py-12 relative overflow-hidden">
                 <div className="container mx-auto px-4 text-center relative z-10">
+                    <div className="flex items-center justify-center mb-8">
+                        <img src="/favicon.png" alt="Logo" className="w-24 h-24" />
+                    </div>
                     <h1 className="text-4xl md:text-5xl font-bold font-amiri mb-4">القرآن الكريم</h1>
                     <p className="opacity-80 text-lg mb-8 max-w-2xl mx-auto">تصفح واستمع إلى القرآن الكريم بصوت نخبة من القراء</p>
 

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser, SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
 import { API_URL } from '@/config';
+import SEO from '@/components/SEO';
 
 export default function BlogPost() {
     const { id } = useParams();
@@ -179,6 +180,24 @@ export default function BlogPost() {
 
     return (
         <div className="min-h-screen bg-[#DAE0E6] pb-24" dir="rtl">
+            <SEO
+                title={post.title}
+                description={post.content ? post.content.replace(/<[^>]*>?/gm, '').substring(0, 160) : `نقاش متعلق بـ ${post.title}`}
+                keywords={`${post.tags ? post.tags.join(', ') : ''}, مدونة إسلامية, نقاش, ${post.author}`}
+                url={`/blog/${post._id}`}
+                type="article"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "Article",
+                    "headline": post.title,
+                    "author": {
+                        "@type": "Person",
+                        "name": post.author
+                    },
+                    "datePublished": post.date,
+                    "image": post.imageUrl ? post.imageUrl : "https://ajr.app/default-image.jpg"
+                }}
+            />
             <div className="bg-[#0f172a] text-white py-12 relative overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
                 <div className="container mx-auto px-4 relative z-10 max-w-4xl">
                     <Button

@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { API_URL } from '@/config';
+import SEO from '@/components/SEO';
 
 import { RECITERS_DATA } from '@/components/recitersdata';
 
@@ -163,6 +164,12 @@ function Listen() {
 
         return (
             <div className={`min-h-screen bg-background pb-20 ${currentAudio ? 'pb-32' : ''}`}>
+                <SEO
+                    title={selectedReciter.name}
+                    description={selectedReciter.description || `استمع للقرآن الكريم والمحاضرات بصوت ${selectedReciter.name}`}
+                    keywords={`${selectedReciter.name}, تلاوات, محاضرات, قرآن كريم, استماع`}
+                    url={`/listen/${reciterId}`}
+                />
                 {/* Reciter/Scholar Header */}
                 <div className="bg-[#0f172a] text-white py-12 px-4 shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
                     <div className="container mx-auto max-w-4xl">
@@ -341,6 +348,12 @@ function Listen() {
     // List View (All Reciters & Scholars)
     return (
         <div className={`min-h-screen bg-background  pb-20 ${currentAudio ? 'pb-32' : ''}`}>
+            <SEO
+                title="المكتبة الصوتية"
+                description="استمع إلى القرآن الكريم والدروس العلمية بأصوات نخبة من القراء والعلماء"
+                keywords="قراء, تلاوات, قرآن كريم, علماء, دروس اسلامية, المكتبة الصوتية"
+                url="/listen"
+            />
             {/* Header */}
             <div className="bg-[#0f172a] text-white py-12 px-4 shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
                 <div className="container mx-auto text-center max-w-2xl">

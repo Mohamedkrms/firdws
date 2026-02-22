@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Bookmark, Loader2, BookOpen } from 'lucide-react';
 import { API_URL } from '@/config';
 import { Button } from "@/components/ui/button";
+import SEO from '@/components/SEO';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,7 +37,12 @@ function Bookmarks() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-12 max-w-3xl space-y-8">
+        <div className="container mx-auto px-4 py-12 max-w-3xl space-y-8" dir="rtl">
+            <SEO
+                title="المفضلة"
+                description="الآيات التي قمت بحفظها للرجوع إليها لاحقاً."
+                url="/bookmarks"
+            />
             <div>
                 <h2 className="text-3xl font-bold flex items-center gap-2">
                     <Bookmark className="w-7 h-7 text-primary" />

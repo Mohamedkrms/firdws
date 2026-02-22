@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { HADITH_BOOKS, getBookById, getSectionName } from '@/utils/sunnahData';
 import { API_URL } from '@/config';
+import SEO from '@/components/SEO';
 
 const BASE_URL = 'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions';
 
@@ -68,6 +69,12 @@ async function fetchHadithDetails(hadithText) {
 export function SunnahHome() {
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-24 font-changa" dir="rtl">
+            <SEO
+                title="السنة النبوية - الكتب الستة"
+                description="تصفح أحاديث النبي صلى الله عليه وسلم من أشهر كتب الحديث (الكتب الستة) مع شروحها وتخريجها."
+                keywords="أحاديث, السنة النبوية, البخاري, مسلم, الكتب الستة, حديث نبوي"
+                url="/sunnah"
+            />
             <div className="bg-[#0f172a] text-white py-12 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] opacity-5" />
                 <div className="container mx-auto px-4 text-center relative z-10">
@@ -144,6 +151,12 @@ export function SunnahBook() {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-24 font-changa" dir="rtl">
+            <SEO
+                title={book.name}
+                description={book.description || `تصفح وقراءة أحاديث ${book.name}`}
+                keywords={`${book.name}, أحاديث, حديث, السنة النبوية`}
+                url={`/sunnah/${book.id}`}
+            />
             <div className="bg-[#0f172a] text-white py-6 border-b border-white/10">
                 <div className="container mx-auto px-4">
                     <Link to="/sunnah" className="flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-3 transition-colors w-fit">
@@ -249,6 +262,12 @@ export function SunnahSection() {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-24 font-changa" dir="rtl">
+            <SEO
+                title={`${sectionName} - ${book.name}`}
+                description={`أحاديث ${sectionName} من ${book.name}. اقرأ الأحاديث الشريفة مع الشرح والتخريج.`}
+                keywords={`${sectionName}, ${book.name}, حديث, شرح أحاديث`}
+                url={`/sunnah/${book.id}/${sectionNum}`}
+            />
             <div className="bg-[#0f172a] text-white py-6 border-b border-white/10">
                 <div className="container mx-auto px-4">
                     {/* Breadcrumb */}

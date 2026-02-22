@@ -5,6 +5,7 @@ import { PenLine, User, Loader2, MessageCircle, LogIn, CheckCircle2, ChevronDown
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { API_URL } from '@/config';
+import SEO from '@/components/SEO';
 import {
     Dialog,
     DialogContent,
@@ -544,6 +545,12 @@ function Blog() {
             </Dialog>
 
             <div className="min-h-screen bg-[#DAE0E6] pb-24" dir="rtl">
+                <SEO
+                    title="مجتمع القرآن والمدونة"
+                    description="مساحة للحوار والمقالات الموثوقة لمناقشة القرآن الكريم والسنة النبوية والفقه."
+                    keywords="مدونة, مجتمع إسلامي, مقالات, نقاشات دينية, تفسير القرآن, فضاء إسلامي"
+                    url="/blog"
+                />
 
                 {/* MATCH HOME PAGE STYLE HEADER */}
                 <div className="bg-[#0f172a] text-white py-12 relative overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.1)] mb-8">

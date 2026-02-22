@@ -15,6 +15,7 @@ import {
 import { useAudio } from '@/context/AudioContext';
 import { isGodName } from '@/utils/godNames';
 import { API_URL } from '@/config';
+import SEO from '@/components/SEO';
 
 const POPULAR_RECITERS = [
     { id: 'mishary_rashid_alafasy', name: 'مشاري العفاسي', img: 'https://i.pinimg.com/564x/0a/40/9e/0a409ef09a55700877c20d7195fe9126.jpg' },
@@ -139,8 +140,32 @@ function Surah() {
     const surahId = parseInt(id);
     const filteredSurahs = allSurahs.filter(s => s.name_arabic.includes(searchQuery));
 
+    const surahName = surahInfo?.name_arabic || '';
+
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-24 font-changa" dir="rtl">
+            <SEO
+                title={`سورة ${surahName} مكتوبة`}
+                description={`سورة ${surahName} مكتوبة كاملة بالتشكيل من المصحف برواية حفص عن عاصم، استمع واقرأ سورة ${surahName}`}
+                keywords={`سورة ${surahName}, القرآن الكريم, استماع سورة ${surahName}, سورة ${surahName} مكتوبة, تلاوة`}
+                url={`/surah/${surahId}`}
+                type="article"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [{
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "الرئيسية",
+                        "item": "https://ajr.app/"
+                    }, {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": `سورة ${surahName}`,
+                        "item": `https://ajr.app/surah/${surahId}`
+                    }]
+                }}
+            />
             {/* Top Navigation Bar */}
             <div className="bg-[#0f172a] text-white py-3 border-b border-white/10">
                 <div className="container mx-auto px-4 flex items-center justify-between text-sm">

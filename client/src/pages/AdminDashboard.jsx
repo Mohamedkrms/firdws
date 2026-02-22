@@ -6,6 +6,7 @@ import { Shield, Check, Trash2, Edit, AlertCircle, FileText, MessageSquare, Load
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { API_URL } from '@/config';
+import SEO from '@/components/SEO';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
@@ -102,6 +103,11 @@ function AdminDashboard() {
 
     return (
         <div className="min-h-screen bg-[#DAE0E6] pb-24" dir="rtl">
+            <SEO
+                title="لوحة تحكم الإدارة"
+                description="إدارة المحتوى والمقالات في منصة أجر."
+                url="/admin"
+            />
             {/* Header */}
             <div className="bg-[#0f172a] text-white py-12 relative overflow-hidden shadow-md mb-8">
                 <div className="container mx-auto px-4 relative z-10 max-w-6xl flex flex-col md:flex-row items-center justify-between gap-6">

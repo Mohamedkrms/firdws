@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Search as SearchIcon, BookOpen, Loader2, AlertCircle } from 'lucide-react';
 import { API_URL } from '@/config';
+import SEO from '@/components/SEO';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -109,6 +110,12 @@ function Search() {
 
     return (
         <div className="min-h-screen bg-background pb-20 font-changa" dir="rtl">
+            <SEO
+                title="البحث"
+                description="ابحث في القرآن الكريم والأحاديث النبوية الشريفة."
+                keywords="بحث, قرآن, أحاديث, بحث إسلامي"
+                url="/search"
+            />
             {/* Header */}
             <div className="bg-[#0f172a] text-white py-12 px-4 shadow-md">
                 <div className="container mx-auto max-w-2xl text-center">

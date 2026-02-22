@@ -36,13 +36,11 @@ function Navbar() {
                 {/* Logo Area */}
                 <div className="flex items-center gap-6">
                     <Link to="/" className="flex items-center gap-2 group">
-                        {/* Orange Icon */}
-                        <div className="w-8 h-8 rounded bg-[#f97316] flex items-center justify-center text-white font-amiri font-bold text-lg shadow-sm group-hover:bg-[#ea580c] transition-colors">
-                            أ
+                        {/* App Logo */}
+                        <div className="relative ">
+                            <img src="/logo.png" alt="أجر" className="w-30 h-16 object-contain" />
                         </div>
-                        <div className="hidden sm:block leading-none">
-                            <h1 className="text-xl font-bold tracking-wide">القرآن الكريم</h1>
-                        </div>
+
                     </Link>
 
                     {/* Desktop Nav - White text, Orange hover */}
@@ -68,7 +66,7 @@ function Navbar() {
                 </div>
 
                 {/* Search & Mobile */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center  gap-3">
                     <form onSubmit={handleSearch} className="hidden lg:block relative">
                         <Input
                             name="search"
@@ -91,7 +89,7 @@ function Navbar() {
                             </SignInButton>
                         </SignedOut>
                         <SignedIn>
-                            <UserButton appearance={{ elements: { userButtonAvatarBox: "w-9 h-9" } }} />
+                            <UserButton appearance={{ elements: { userButtonAvatarBox: "w-15 h-15" } }} />
                         </SignedIn>
                     </div>
 
@@ -104,8 +102,8 @@ function Navbar() {
                         <SheetContent side="right" className="w-[300px] p-0 border-l-[#f97316] rtl">
                             <div className="p-6 bg-[#0f172a] text-white">
                                 <Link to="/" className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-[#f97316] rounded flex items-center justify-center font-bold text-2xl">
-                                        أ
+                                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center">
+                                        <img src="/logo.png" alt="أجر" className="w-full h-full object-contain" />
                                     </div>
                                     <span className="font-bold text-xl">القرآن الكريم</span>
                                 </Link>
