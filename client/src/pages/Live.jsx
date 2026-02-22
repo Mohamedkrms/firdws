@@ -4,6 +4,7 @@ import { useUser } from "@clerk/clerk-react";
 import { Tv, Radio, Plus, Trash2, PlayCircle, Loader2, Sparkles, Play, Pause, Tag, X, Filter } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from "@/components/ui/button";
+import { API_URL } from '@/config';
 import { Input } from "@/components/ui/input";
 import {
     Dialog,
@@ -79,7 +80,7 @@ export default function Live() {
 
     const fetchStreams = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/livestreams');
+            const res = await axios.get(`${API_URL}/api/livestreams`);
             setStreams(res.data);
         } catch (error) {
             console.error('Error fetching livestreams:', error);
@@ -90,7 +91,7 @@ export default function Live() {
 
     const fetchCategories = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/categories');
+            const res = await axios.get(`${API_URL}/api/categories`);
             setCategories(res.data);
         } catch (error) {
             console.error('Error fetching categories:', error);
@@ -118,7 +119,7 @@ export default function Live() {
         if (!isAdmin) return;
         setIsSubmitting(true);
         try {
-            await axios.post('http://localhost:5000/api/livestreams', {
+            await axios.post(`${API_URL}/api/livestreams`, {
                 title: formTitle,
                 url: formUrl,
                 type: 'tv',
@@ -141,7 +142,7 @@ export default function Live() {
     const handleDelete = async (id) => {
         if (!isAdmin || !window.confirm('هل أنت متأكد من حذف هذا البث؟')) return;
         try {
-            await axios.delete(`http://localhost:5000/api/livestreams/${id}`, {
+            await axios.delete(`${API_URL}/api/livestreams/${id}`, {
                 params: { adminEmail: user.primaryEmailAddress.emailAddress }
             });
             setStreams(streams.filter(s => s._id !== id));
@@ -155,7 +156,7 @@ export default function Live() {
         if (!isAdmin || !newCategoryName.trim()) return;
         setIsCategorySubmitting(true);
         try {
-            await axios.post('http://localhost:5000/api/categories', {
+            await axios.post(`${API_URL}/api/categories`, {
                 name: newCategoryName.trim(),
                 adminEmail: user.primaryEmailAddress.emailAddress
             });
@@ -175,7 +176,7 @@ export default function Live() {
     const handleDeleteCategory = async (id) => {
         if (!isAdmin || !window.confirm('هل أنت متأكد من حذف هذا التصنيف؟')) return;
         try {
-            await axios.delete(`http://localhost:5000/api/categories/${id}`, {
+            await axios.delete(`${API_URL}/api/categories/${id}`, {
                 params: { adminEmail: user.primaryEmailAddress.emailAddress }
             });
             setCategories(categories.filter(c => c._id !== id));

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RECITERS_DATA } from '@/components/recitersdata';
+import { API_URL } from '@/config';
 function Home() {
     const [surahs, setSurahs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -14,7 +15,7 @@ function Home() {
     const query = searchParams.get('search') || '';
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/surahs')
+        axios.get(`${API_URL}/api/surahs`)
             .then(res => {
                 setSurahs(res.data.chapters || []);
                 setLoading(false);

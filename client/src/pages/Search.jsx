@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Search as SearchIcon, BookOpen, Loader2, AlertCircle } from 'lucide-react';
+import { API_URL } from '@/config';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -78,7 +79,7 @@ function Search() {
             setLoading(true);
             setError(null);
             // Use AlQuran.cloud API directly (or local proxy)
-            axios.get(`http://localhost:5000/api/search?q=${query}`)
+            axios.get(`${API_URL}/api/search?q=${query}`)
                 .then(res => {
                     // AlQuran.cloud response structure:
                     // { code: 200, status: "OK", data: { count: N, matches: [...] } }

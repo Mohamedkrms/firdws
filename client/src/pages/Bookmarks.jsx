@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Bookmark, Loader2, BookOpen } from 'lucide-react';
+import { API_URL } from '@/config';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +13,7 @@ function Bookmarks() {
     const [loading, setLoading] = useState(true);
 
     const fetchBookmarks = () => {
-        axios.get('http://localhost:5000/api/bookmarks')
+        axios.get(`${API_URL}/api/bookmarks`)
             .then(response => {
                 setBookmarks(response.data);
                 setLoading(false);

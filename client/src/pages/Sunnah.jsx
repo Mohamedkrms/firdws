@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { HADITH_BOOKS, getBookById, getSectionName } from '@/utils/sunnahData';
+import { API_URL } from '@/config';
 
 const BASE_URL = 'https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions';
 
@@ -45,7 +46,6 @@ function extractMatn(text) {
 
 // Fetch hadith takhrij + sharh via server proxy (Dorar.net)
 async function fetchHadithDetails(hadithText) {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     try {
         const res = await axios.get(`${API_URL}/api/hadith/sharh`, {
             params: { text: hadithText?.slice(0, 500) },

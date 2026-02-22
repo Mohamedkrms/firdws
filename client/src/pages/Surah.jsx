@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAudio } from '@/context/AudioContext';
 import { isGodName } from '@/utils/godNames';
+import { API_URL } from '@/config';
 
 const POPULAR_RECITERS = [
     { id: 'mishary_rashid_alafasy', name: 'مشاري العفاسي', img: 'https://i.pinimg.com/564x/0a/40/9e/0a409ef09a55700877c20d7195fe9126.jpg' },
@@ -60,7 +61,7 @@ function Surah() {
             try {
                 const [vRes, sRes] = await Promise.all([
                     axios.get(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${id}`),
-                    axios.get('http://localhost:5000/api/surahs'),
+                    axios.get(`${API_URL}/api/surahs`),
                 ]);
                 setVerses(vRes.data.verses || []);
                 setAllSurahs(sRes.data.chapters || []);

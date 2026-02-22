@@ -4,6 +4,7 @@ import axios from 'axios';
 import { PenLine, User, Loader2, MessageCircle, LogIn, CheckCircle2, ChevronDown, ChevronUp, Hash, ArrowRight, Trash2, Check, Edit, ImagePlus, Shield, Scale, Scroll, Users, Heart, Book, Share2, Library, MessageSquare, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { API_URL } from '@/config';
 import {
     Dialog,
     DialogContent,
@@ -85,7 +86,7 @@ function ForumPost({ post, onDelete, onEdit }) {
         setScore(newScore);
 
         try {
-            await axios.post(`http://localhost:5000/api/posts/${post._id}/vote`, {
+            await axios.post(`${API_URL}/api/posts/${post._id}/vote`, {
                 userId: user.id,
                 vote: newStatus
             });
@@ -321,7 +322,7 @@ function Blog() {
 
     const authenticator = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/imagekit/auth');
+            const response = await fetch(`${API_URL}/api/imagekit/auth`);
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(`Request failed with status ${response.status}: ${errorText}`);
@@ -376,8 +377,8 @@ function Blog() {
     const fetchPosts = async (tagFilter = '') => {
         try {
             const [blogRes, forumRes] = await Promise.all([
-                axios.get(`http://localhost:5000/api/posts?isBlog=true`),
-                axios.get(`http://localhost:5000/api/posts?isBlog=false${tagFilter ? '&tag=' + encodeURIComponent(tagFilter) : ''}`)
+                axios.get(`${API_URL}/api/posts?isBlog=true`),
+                axios.get(`${API_URL}/api/posts?isBlog=false${tagFilter ? '&tag=' + encodeURIComponent(tagFilter) : ''}`)
             ]);
 
             setBlogPosts(blogRes.data);
@@ -391,7 +392,7 @@ function Blog() {
 
     const handleDelete = async (postId) => {
         try {
-            await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+            await axios.delete(`${API_URL}/api/posts/${postId}`, {
                 params: {
                     adminEmail: user?.primaryEmailAddress?.emailAddress,
                     authorId: user?.id
@@ -451,7 +452,7 @@ function Blog() {
             const tagsArray = form.tags.split(/[ ,]+/).map(t => t.trim().replace(/^#/, '')).filter(t => t.length > 0);
 
             if (editingPost) {
-                await axios.put(`http://localhost:5000/api/posts/${editingPost._id}`, {
+                await axios.put(`${API_URL}/api/posts/${editingPost._id}`, {
                     title: form.title,
                     content: form.content,
                     authorEmail: user.primaryEmailAddress?.emailAddress,
@@ -461,7 +462,7 @@ function Blog() {
                 });
                 setEditingPost(null);
             } else {
-                await axios.post('http://localhost:5000/api/posts', {
+                await axios.post(`${API_URL}/api/posts`, {
                     title: form.title,
                     content: form.content,
                     author: user.fullName || user.firstName || 'مستخدم',

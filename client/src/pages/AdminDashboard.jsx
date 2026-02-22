@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Shield, Check, Trash2, Edit, AlertCircle, FileText, MessageSquare, Loader2, ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { API_URL } from '@/config';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
@@ -24,8 +25,8 @@ function AdminDashboard() {
             const adminEmail = user.primaryEmailAddress.emailAddress;
             // Fetch both blog and forum posts
             const [blogRes, forumRes] = await Promise.all([
-                axios.get(`http://localhost:5000/api/posts?isBlog=true&adminEmail=${adminEmail}`),
-                axios.get(`http://localhost:5000/api/posts?isBlog=false&adminEmail=${adminEmail}`)
+                axios.get(`${API_URL}/api/posts?isBlog=true&adminEmail=${adminEmail}`),
+                axios.get(`${API_URL}/api/posts?isBlog=false&adminEmail=${adminEmail}`)
             ]);
 
             // Combine and sort by date descending
@@ -48,7 +49,7 @@ function AdminDashboard() {
 
     const handleApprove = async (postId) => {
         try {
-            await axios.put(`http://localhost:5000/api/posts/${postId}/approve`, {
+            await axios.put(`${API_URL}/api/posts/${postId}/approve`, {
                 adminEmail: user.primaryEmailAddress.emailAddress
             });
             // Update local state
@@ -62,7 +63,7 @@ function AdminDashboard() {
     const handleDelete = async (postId) => {
         if (!window.confirm('هل أنت متأكد من حذف هذا المنشور نهائياً؟')) return;
         try {
-            await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+            await axios.delete(`${API_URL}/api/posts/${postId}`, {
                 params: {
                     adminEmail: user.primaryEmailAddress.emailAddress
                 }

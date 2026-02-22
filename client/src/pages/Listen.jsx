@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { API_URL } from '@/config';
 
 import { RECITERS_DATA } from '@/components/recitersdata';
 
@@ -61,7 +62,7 @@ function Listen() {
         const fetchData = async () => {
             try {
                 // Fetch only surahs, we have static reciters now
-                const surahsRes = await axios.get('http://localhost:5000/api/surahs');
+                const surahsRes = await axios.get(`${API_URL}/api/surahs`);
                 setSurahs(surahsRes.data.chapters || []);
             } catch (error) {
                 console.error('Error fetching data:', error);

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser, SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
+import { API_URL } from '@/config';
 
 export default function BlogPost() {
     const { id } = useParams();
@@ -32,7 +33,7 @@ export default function BlogPost() {
     useEffect(() => {
         const fetchPostAndReplies = async () => {
             try {
-                const postRes = await axios.get(`http://localhost:5000/api/posts`);
+                const postRes = await axios.get(`${API_URL}/api/posts`);
                 const foundPost = postRes.data.find(p => p._id === id);
 
                 if (foundPost) {
@@ -46,7 +47,7 @@ export default function BlogPost() {
 
                     // Fetch replies
                     setLoadingReplies(true);
-                    const repliesRes = await axios.get(`http://localhost:5000/api/posts/${id}/replies`);
+                    const repliesRes = await axios.get(`${API_URL}/api/posts/${id}/replies`);
                     setReplies(repliesRes.data);
                 }
             } catch (error) {
@@ -84,7 +85,7 @@ export default function BlogPost() {
         setScore(score + diff);
 
         try {
-            await axios.post(`http://localhost:5000/api/posts/${post._id}/vote`, {
+            await axios.post(`${API_URL}/api/posts/${post._id}/vote`, {
                 userId: user.id,
                 vote: newVoteStatus
             });
@@ -102,14 +103,14 @@ export default function BlogPost() {
 
         setSubmittingReply(true);
         try {
-            await axios.post(`http://localhost:5000/api/posts/${post._id}/replies`, {
+            await axios.post(`${API_URL}/api/posts/${post._id}/replies`, {
                 content: replyContent,
                 author: user.fullName || user.firstName || 'مستخدم',
                 authorId: user.id
             });
             setReplyContent('');
 
-            const repliesRes = await axios.get(`http://localhost:5000/api/posts/${id}/replies`);
+            const repliesRes = await axios.get(`${API_URL}/api/posts/${id}/replies`);
             setReplies(repliesRes.data);
         } catch (error) {
             console.error('Error submitting reply:', error);
@@ -122,7 +123,7 @@ export default function BlogPost() {
     const handleDeletePost = async () => {
         if (!window.confirm('هل أنت متأكد من حذف هذا المنشور؟')) return;
         try {
-            await axios.delete(`http://localhost:5000/api/posts/${post._id}`, {
+            await axios.delete(`${API_URL}/api/posts/${post._id}`, {
                 params: {
                     adminEmail: user?.primaryEmailAddress?.emailAddress,
                     authorId: user?.id
@@ -137,7 +138,7 @@ export default function BlogPost() {
 
     const handleApprovePost = async () => {
         try {
-            await axios.put(`http://localhost:5000/api/posts/${post._id}/approve`, {
+            await axios.put(`${API_URL}/api/posts/${post._id}/approve`, {
                 adminEmail: user?.primaryEmailAddress?.emailAddress
             });
             setPost(prev => ({ ...prev, isApproved: true }));
