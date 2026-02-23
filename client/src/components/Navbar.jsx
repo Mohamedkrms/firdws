@@ -38,7 +38,7 @@ function Navbar() {
                     <Link to="/" className="flex items-center gap-2 group">
                         {/* App Logo */}
                         <div className="relative ">
-                            <img src="/logo.png" alt="أجر" className="w-30 h-16 object-contain" />
+                            <img src="/logo.png" alt="فردوس" className="w-30 h-16 object-contain" />
                         </div>
 
                     </Link>
@@ -103,7 +103,7 @@ function Navbar() {
                             <div className="p-6 bg-[#0f172a] text-white">
                                 <Link to="/" className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center">
-                                        <img src="/logo.png" alt="أجر" className="w-full h-full object-contain" />
+                                        <img src="/logo.png" alt="فردوس" className="w-full h-full object-contain" />
                                     </div>
                                     <span className="font-bold text-xl">القرآن الكريم</span>
                                 </Link>

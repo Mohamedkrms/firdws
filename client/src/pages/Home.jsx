@@ -40,13 +40,13 @@ function Home() {
         <div className="min-h-screen bg-[#f8f9fa] pb-20">
             <SEO
                 title="الصفحة الرئيسية"
-                description="موقع أجر - القرآن الكريم والسنة النبوية، استمع واقرأ وتدبر في آيات الله"
+                description="موقع فردوس - القرآن الكريم والسنة النبوية، استمع واقرأ وتدبر في آيات الله"
                 keywords="القرآن الكريم, استماع, قراءة, مكتوب, أحاديث, سنة نبوية, تلاوات"
                 url="/"
                 schema={{
                     "@context": "https://schema.org",
                     "@type": "WebSite",
-                    "name": "أجر",
+                    "name": "فردوس",
                     "url": "https://ajr.app/"
                 }}
             />

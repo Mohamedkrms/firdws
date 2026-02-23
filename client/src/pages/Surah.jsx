@@ -112,7 +112,7 @@ function Surah() {
                 try {
                     const surahNumber = surahInfo.id;
                     const ayahNumber = selectedVerse.verse_key.split(':')[1];
-                    const res = await axios.get(`http://api.quran-tafseer.com/tafseer/${currentTafsir}/${surahNumber}/${ayahNumber}`);
+                    const res = await axios.get(`${API_URL}/api/tafsir/${currentTafsir}/${surahNumber}/${ayahNumber}`);
                     if (res.data) setTafsirData(res.data);
                 } catch (error) {
                     console.error("Failed to load tafsir", error);

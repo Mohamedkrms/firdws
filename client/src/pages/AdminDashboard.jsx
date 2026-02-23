@@ -105,7 +105,7 @@ function AdminDashboard() {
         <div className="min-h-screen bg-[#DAE0E6] pb-24" dir="rtl">
             <SEO
                 title="لوحة تحكم الإدارة"
-                description="إدارة المحتوى والمقالات في منصة أجر."
+                description="إدارة المحتوى والمقالات في منصة فردوس."
                 url="/admin"
             />
             {/* Header */}

@@ -597,7 +597,19 @@ app.get('/api/hadith/sharh', async (req, res) => {
     }
 });
 
-
+// ─── Tafsir API Proxy ──────────────────────────────────────────────
+app.get('/api/tafsir/:tafsirId/:surahNumber/:ayahNumber', async (req, res) => {
+    try {
+        const { tafsirId, surahNumber, ayahNumber } = req.params;
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(`http://api.quran-tafseer.com/tafseer/${tafsirId}/${surahNumber}/${ayahNumber}`);
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching tafsir:', error);
+        res.status(500).json({ message: 'Error fetching tafsir data' });
+    }
+});
 
 // ─── Categories ───────────────────────────────────────
 const CategorySchema = new mongoose.Schema({
