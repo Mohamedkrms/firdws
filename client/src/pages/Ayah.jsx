@@ -137,13 +137,14 @@ function Ayah() {
     };
 
     const playAyah = () => {
-        const sNum = String(surahNum).padStart(3, '0');
-        const aNum = String(ayahNum).padStart(3, '0');
-        playTrack(
-            `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${sNum}${aNum}.mp3`,
-            `سورة ${surahName} - آية ${ayahNum}`,
-            'مشاري العفاسي'
-        );
+        if (!verse) return;
+        const track = {
+            url: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${verse.id}.mp3`,
+            title: `سورة ${surahName} - آية ${ayahNum}`,
+            reciter: 'مشاري العفاسي',
+            id: verse.id
+        };
+        playTrack(track);
     };
 
     // Navigation helpers
