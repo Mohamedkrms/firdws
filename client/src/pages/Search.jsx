@@ -19,15 +19,13 @@ function normalizeArabic(text) {
     return n;
 }
 
-// Build a map from normalized-string index → original-string index
 function buildIndexMap(original) {
     const map = [];
     let ni = 0;
     for (let oi = 0; oi < original.length; oi++) {
         const ch = original[oi];
-        // Check if this char is a diacritic (gets removed during normalization)
         if (/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/.test(ch)) {
-            continue; // skip, no corresponding normalized index
+            continue;
         }
         map[ni] = oi;
         ni++;
@@ -35,7 +33,6 @@ function buildIndexMap(original) {
     return map;
 }
 
-// Highlight query in original text using normalization-aware matching
 function highlightMatch(original, query) {
     if (!query) return original;
     const normText = normalizeArabic(original);
@@ -47,13 +44,11 @@ function highlightMatch(original, query) {
 
     const map = buildIndexMap(original);
     const startOrig = map[idx];
-    // Find end: we need the original index AFTER the last matched normalized char
     const endNormIdx = idx + normQuery.length - 1;
     const endOrig = map[endNormIdx];
 
     if (startOrig === undefined || endOrig === undefined) return original;
 
-    // Extend endOrig to include any trailing diacritics
     let actualEnd = endOrig + 1;
     while (actualEnd < original.length && /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/.test(original[actualEnd])) {
         actualEnd++;
@@ -169,7 +164,7 @@ function Search() {
                     {!loading && !error && results.length > 0 && results.map((result, index) => (
                         <Card key={index} className="border hover:border-[#f97316]/50 transition-colors group">
                             <CardContent className="p-6">
-                                <Link to={`/surah/${result.surah.number}`} className="block">
+                                <Link to={`/surah/${result.surah.number}?ayah=${result.numberInSurah}`} className="block">
                                     <div className="flex items-start gap-4">
                                         <div className="mt-1 w-8 h-8 rounded-full bg-[#f97316]/10 text-[#f97316] flex items-center justify-center font-bold text-xs shrink-0">
                                             {result.surah.number}:{result.numberInSurah}

@@ -63,6 +63,12 @@ const Footer = () => {
                                 </Link>
                             </li>
                             <li>
+                                <Link to="/ulama" className="hover:text-[#f97316] transition-colors flex items-center gap-2 group">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#f97316] transition-colors" />
+                                    دروس العلماء والمحاضرات
+                                </Link>
+                            </li>
+                            <li>
                                 <Link to="/books" className="hover:text-[#f97316] transition-colors flex items-center gap-2 group">
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#f97316] transition-colors" />
                                     المكتبة المقروءة والكتب
@@ -94,6 +100,12 @@ const Footer = () => {
                                 <Link to="/blog" className="hover:text-[#f97316] transition-colors flex items-center gap-2 group">
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#f97316] transition-colors" />
                                     مقالات المدونة الإسلامية
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/forum" className="hover:text-[#f97316] transition-colors flex items-center gap-2 group">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#f97316] transition-colors" />
+                                    مجتمع فردوس والنقاشات
                                 </Link>
                             </li>
                             {isAdmin && (

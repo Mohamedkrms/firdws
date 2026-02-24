@@ -13,7 +13,7 @@ import SEO from '@/components/SEO';
 function Quran() {
     const [surahs, setSurahs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const query = searchParams.get('search') || '';
 
     useEffect(() => {
@@ -28,11 +28,26 @@ function Quran() {
             });
     }, []);
 
-    const filtered = surahs.filter(s =>
-        s.name_simple.toLowerCase().includes(query.toLowerCase()) ||
-        s.name_arabic.includes(query) ||
-        String(s.id).includes(query)
-    );
+    const handleSearch = (val) => {
+        if (val) {
+            setSearchParams({ search: val });
+        } else {
+            setSearchParams({});
+        }
+    };
+
+    const filtered = surahs.filter(s => {
+        if (!query) return true;
+        const q = query.toLowerCase().trim();
+        return (
+            s.name_simple.toLowerCase().includes(q) ||
+            s.name_arabic.includes(q) ||
+            String(s.id) === q ||
+            (s.translated_name?.name || '').toLowerCase().includes(q) ||
+            (s.revelation_place === 'makkah' && 'مكية'.includes(q)) ||
+            (s.revelation_place === 'madinah' && 'مدنية'.includes(q))
+        );
+    });
 
     const renderSkeleton = () => (
         <div className="min-h-screen bg-[#f8f9fa] pb-20 overflow-hidden">
@@ -124,17 +139,23 @@ function Quran() {
                     <div className="max-w-xl mx-auto relative">
                         <Input
                             className="h-12 rounded-full pl-12 pr-6 bg-white text-black border-none shadow-lg text-lg"
-                            placeholder="ابحث عن سورة..."
+                            placeholder="ابحث عن سورة بالاسم أو الرقم..."
                             value={query}
-                            onChange={e => {
-                                const val = e.target.value;
-                                if (val) searchParams.set('search', val);
-                                else searchParams.delete('search');
-                            }}
+                            onChange={e => handleSearch(e.target.value)}
                         />
-                        <Button size="icon" className="absolute left-1 top-1 bottom-1 rounded-full bg-[#f97316] hover:bg-[#ea580c] w-10 h-10">
-                            <Search className="w-5 h-5 text-white" />
-                        </Button>
+                        {query ? (
+                            <Button
+                                size="icon"
+                                onClick={() => handleSearch('')}
+                                className="absolute left-1 top-1 bottom-1 rounded-full bg-gray-400 hover:bg-gray-500 w-10 h-10"
+                            >
+                                <span className="text-white text-lg font-bold">✕</span>
+                            </Button>
+                        ) : (
+                            <Button size="icon" className="absolute left-1 top-1 bottom-1 rounded-full bg-[#f97316] hover:bg-[#ea580c] w-10 h-10">
+                                <Search className="w-5 h-5 text-white" />
+                            </Button>
+                        )}
                     </div>
                 </div>
                 {/* Decorative Pattern Opacity */}
@@ -158,28 +179,43 @@ function Quran() {
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                                {filtered.map(surah => (
-                                    <Link to={`/surah/${surah.id}`} key={surah.id}>
-                                        <div className="group flex items-center justify-between p-4 rounded-lg border hover:border-[#f97316] hover:shadow-md transition-all bg-[#f8f9fa] hover:bg-white">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 bg-[#e2e8f0] hidden  text-[#0f172a] rounded-lg md:flex items-center justify-center font-bold group-hover:bg-[#f97316] group-hover:text-white transition-colors">
-                                                    {surah.id}
+                                {filtered.length === 0 && query ? (
+                                    <div className="col-span-full text-center py-16">
+                                        <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                        <h3 className="text-lg font-bold text-gray-600 mb-2">لم يتم العثور على نتائج</h3>
+                                        <p className="text-sm text-muted-foreground mb-4">لا توجد سورة تطابق "{query}"</p>
+                                        <Button
+                                            variant="outline"
+                                            className="border-[#f97316] text-[#f97316] hover:bg-[#f97316] hover:text-white"
+                                            onClick={() => handleSearch('')}
+                                        >
+                                            عرض جميع السور
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    filtered.map(surah => (
+                                        <Link to={`/surah/${surah.id}`} key={surah.id}>
+                                            <div className="group flex items-center justify-between p-4 rounded-lg border hover:border-[#f97316] hover:shadow-md transition-all bg-[#f8f9fa] hover:bg-white">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-[#e2e8f0] hidden  text-[#0f172a] rounded-lg md:flex items-center justify-center font-bold group-hover:bg-[#f97316] group-hover:text-white transition-colors">
+                                                        {surah.id}
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-bold text-lg text-[#0f172a] group-hover:text-[#f97316] transition-colors">
+                                                            {surah.name_arabic}
+                                                        </h3>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {surah.revelation_place === 'makkah' ? 'مكية' : 'مدنية'} • {surah.verses_count} آية
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h3 className="font-bold text-lg text-[#0f172a] group-hover:text-[#f97316] transition-colors">
-                                                        {surah.name_arabic}
-                                                    </h3>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {surah.revelation_place === 'makkah' ? 'مكية' : 'مدنية'} • {surah.verses_count} آية
-                                                    </p>
+                                                <div className="text-[#f97316] opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:-translate-x-1">
+                                                    ←
                                                 </div>
                                             </div>
-                                            <div className="text-[#f97316] opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:-translate-x-1">
-                                                ←
-                                            </div>
-                                        </div>
-                                    </Link>
-                                ))}
+                                        </Link>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>

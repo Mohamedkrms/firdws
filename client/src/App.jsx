@@ -4,8 +4,10 @@ import Home from './pages/Home';
 import Quran from './pages/Quran';
 import Surah from './pages/Surah';
 import Listen from './pages/Listen';
+import Ulama from './pages/Ulama';
 import Search from './pages/Search';
 import Blog from './pages/Blog';
+import Forum from './pages/Forum';
 import BlogPost from './pages/BlogPost';
 import Live from './pages/Live';
 import { SunnahHome, SunnahBook, SunnahSection } from './pages/Sunnah';
@@ -36,8 +38,11 @@ function App() {
               <Route path="/surah/:id" element={<Surah />} />
               <Route path="/listen" element={<Listen />} />
               <Route path="/listen/:reciterId" element={<Listen />} />
+              <Route path="/ulama" element={<Ulama />} />
+              <Route path="/ulama/:scholarId" element={<Ulama />} />
               <Route path="/search" element={<Search />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/forum" element={<Forum />} />
               <Route path="/blog/:id" element={<BlogPost />} />
               <Route path="/live" element={<Live />} />
               <Route path="/sunnah" element={<SunnahHome />} />

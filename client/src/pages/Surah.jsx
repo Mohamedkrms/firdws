@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { Play, Search, ChevronLeft, ChevronRight, Home, Download, Headphones, BookOpen } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,8 @@ const POPULAR_RECITERS = [
 
 function Surah() {
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
+    const targetAyah = searchParams.get('ayah');
     const { playTrack } = useAudio();
     const [verses, setVerses] = useState([]);
     const [surahInfo, setSurahInfo] = useState(null);
@@ -76,6 +78,28 @@ function Surah() {
         };
         load();
     }, [id]);
+
+    // Scroll to target ayah from search results
+    useEffect(() => {
+        if (!loading && targetAyah && verses.length > 0) {
+            const el = document.getElementById(`ayah-${targetAyah}`);
+            if (el) {
+                setTimeout(() => {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.style.backgroundColor = 'rgba(249, 115, 22, 0.2)';
+                    el.style.outline = '2px solid #f97316';
+                    el.style.borderRadius = '8px';
+                    el.style.transition = 'all 0.5s ease';
+                    // Remove highlight after 3 seconds
+                    setTimeout(() => {
+                        el.style.backgroundColor = '';
+                        el.style.outline = '';
+                        el.style.borderRadius = '';
+                    }, 3000);
+                }, 300);
+            }
+        }
+    }, [loading, targetAyah, verses]);
 
     const playAudio = (reciterId = 'mishaari_raashid_al_3afaasee', reciterName = 'مشاري العفاسي', year = "") => {
         const num = String(id).padStart(3, '0');
@@ -396,7 +420,7 @@ function Surah() {
                                     const isActive = isVersePlaying(verse.id);
 
                                     return (
-                                        <span key={verse.id} className={`inline relative group px-1 rounded transition-colors ${isActive ? 'bg-orange-50 text-[#f97316] font-bold' : ''}`}>
+                                        <span key={verse.id} id={`ayah-${ayahNumber}`} className={`inline relative group px-1 rounded transition-all duration-500 ${isActive ? 'bg-orange-50 text-[#f97316] font-bold' : ''}`}>
                                             <span
                                                 className={`transition-colors cursor-pointer ${isActive ? 'text-[#f97316]' : 'hover:text-[#f97316]'}`}
                                                 title="انقر لعرض التفسير"
