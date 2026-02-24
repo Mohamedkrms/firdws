@@ -70,10 +70,17 @@ export function SunnahHome() {
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-24 font-changa" dir="rtl">
             <SEO
-                title="السنة النبوية - الأحاديث الصحيحة من الكتب الستة مع الشرح والتخريج"
-                description="تصفح أحاديث النبي صلى الله عليه وسلم من أشهر كتب الحديث (الكتب الستة) مع شروحها وتخريجها."
-                keywords="أحاديث, السنة النبوية, البخاري, مسلم, الكتب الستة, حديث نبوي"
+                title="السنة النبوية - استعرض الأحاديث الصحيحة من الكتب الستة مع الشرح من الدرر السنية"
+                description="تصفح وابحث في أحاديث النبي محمد صلى الله عليه وسلم من أشهر مصادر السنة النبوية الشريفة والكتب الستة (البخاري، مسلم، أبو داود، الترمذي، النسائي، ابن ماجه) مع الشروح والتخريج الكامل."
+                keywords="أحاديث, السنة النبوية, البخاري, مسلم, الكتب الستة, حديث نبوي, شروح الحديث, تخريج الأحاديث, الدرر السنية, الأحاديث الصحيحة"
                 url="/sunnah"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "CollectionPage",
+                    "name": "السنة النبوية - استعرض الأحاديث الصحيحة من الكتب الستة مع الشرح",
+                    "description": "تصفح وابحث في أحاديث النبي محمد صلى الله عليه وسلم من الكتب الستة مع الشروح والتخريج.",
+                    "url": "https://www.firdws.com/sunnah"
+                }}
             />
             <div className="bg-[#0f172a] text-white py-12 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] opacity-5" />
@@ -158,10 +165,18 @@ export function SunnahBook() {
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-24 font-changa" dir="rtl">
             <SEO
-                title={book.name}
-                description={book.description || `تصفح وقراءة أحاديث ${book.name}`}
-                keywords={`${book.name}, أحاديث, حديث, السنة النبوية`}
+                title={`قراءة أحاديث ${book.name} كاملة - السنة النبوية`}
+                description={book.description || `تصفح وقراءة أبواب وأحاديث ${book.name} كاملة مع تفاصيل الشرح ورتبة الحديث والتخريج العلمي الموثق.`}
+                keywords={`${book.name}, أحاديث, حديث, السنة النبوية, صحيح البخاري, صحيح مسلم, سنن, أبواب ${book.name}`}
                 url={`/sunnah/${book.id}`}
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "Book",
+                    "name": book.name,
+                    "description": book.description || `تصفح وقراءة أحاديث ${book.name} كاملة مع تفاصيل الشرح وتخريج الأحاديث.`,
+                    "numberOfPages": sections.length,
+                    "inLanguage": "ar"
+                }}
             />
             <div className="bg-[#0f172a] text-white py-6 border-b border-white/10">
                 <div className="container mx-auto px-4">
@@ -269,10 +284,16 @@ export function SunnahSection() {
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-24 font-changa" dir="rtl">
             <SEO
-                title={`${sectionName} - ${book.name}`}
-                description={`أحاديث ${sectionName} من ${book.name}. اقرأ الأحاديث الشريفة مع الشرح والتخريج.`}
-                keywords={`${sectionName}, ${book.name}, حديث, شرح أحاديث`}
+                title={`أحاديث ${sectionName} من ${book.name} مع التخريج والشرح`}
+                description={`اقرأ جميع أحاديث ${sectionName} المُخرجة من ${book.name}. نوفر لك الأحاديث الشريفة مع الشروحات الوافية وخلاصة حكم المحدث من موقع الدرر السنية.`}
+                keywords={`${sectionName}, ${book.name}, باب ${sectionName}, حديث, شرح أحاديث, تخريج الحديث, صحة الحديث`}
                 url={`/sunnah/${book.id}/${sectionNum}`}
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "WebPage",
+                    "name": `أحاديث ${sectionName} من ${book.name}`,
+                    "description": `اقرأ جميع أحاديث ${sectionName} المُخرجة من ${book.name} مع الشرح وخلاصة حكم المحدث.`
+                }}
             />
             <div className="bg-[#0f172a] text-white py-6 border-b border-white/10">
                 <div className="container mx-auto px-4">

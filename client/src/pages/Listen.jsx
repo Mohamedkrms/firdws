@@ -402,29 +402,59 @@ function Listen() {
                         <ScrollArea className="h-[1900px] w-full pr-4">
                             <TabsContent value="reciters" className="mt-0">
                                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 text-center">
-                                    {filteredReciters.map(reciter => (
-                                        <Link
-                                            key={reciter.id}
-                                            to={`/listen/${reciter.id}`}
-                                            className={`group cursor-pointer p-4 rounded-xl transition-all duration-200 block hover:bg-gray-50`}
-                                        >
-                                            <div className={`w-20 h-20 mx-auto rounded-full overflow-hidden border-2 transition-all mb-3 shadow-sm border-transparent group-hover:border-[#f97316]`}>
-                                                <img
-                                                    src={reciter.img}
-                                                    alt={reciter.name}
-                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                                />
-                                            </div>
-                                            <p className={`text-xs font-bold truncate transition-colors font-changa group-hover:text-[#f97316]`}>
-                                                {reciter.name}
-                                            </p>
-                                            {reciter.style && (
-                                                <span className="text-[10px] mt-1 inline-block px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 font-changa">
-                                                    {reciter.style}
-                                                </span>
-                                            )}
-                                        </Link>
-                                    ))}
+                                    {filteredReciters.map(reciter => {
+                                        const Wrapper = surahIdParam ? 'div' : Link;
+                                        const wrapperProps = surahIdParam
+                                            ? {
+                                                onClick: () => {
+                                                    const surah = surahs.find(s => s.id === parseInt(surahIdParam));
+                                                    if (surah) handlePlaySurah(reciter, surah);
+                                                }
+                                            }
+                                            : { to: `/listen/${reciter.id}` };
+
+                                        const isCurrentReciter = currentAudio?.reciter === reciter.name;
+
+                                        return (
+                                            <Wrapper
+                                                key={reciter.id}
+                                                {...wrapperProps}
+                                                className={`group cursor-pointer p-4 rounded-xl transition-all duration-200 block ${isCurrentReciter ? 'bg-[#f97316]/5 border-[#f97316] ring-1 ring-[#f97316]' : 'hover:bg-gray-50'}`}
+                                            >
+                                                <div className={`w-20 h-20 mx-auto rounded-full overflow-hidden border-2 transition-all mb-3 shadow-sm relative ${isCurrentReciter ? 'border-[#f97316]' : 'border-transparent group-hover:border-[#f97316]'}`}>
+                                                    <img
+                                                        src={reciter.img}
+                                                        alt={reciter.name}
+                                                        className={`w-full h-full object-cover transition-transform duration-500 ${isCurrentReciter ? 'scale-110' : 'group-hover:scale-110'}`}
+                                                    />
+
+                                                    {isCurrentReciter && isGlobalPlaying && (
+                                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                                            <div className="flex gap-0.5 h-4 items-end">
+                                                                <span className="w-0.5 h-full bg-white animate-[bounce_1s_infinite] rounded-full" />
+                                                                <span className="w-0.5 h-2/3 bg-white animate-[bounce_1.2s_infinite] rounded-full" />
+                                                                <span className="w-0.5 h-full bg-white animate-[bounce_0.8s_infinite] rounded-full" />
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {!isCurrentReciter && surahIdParam && (
+                                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <Play className="w-8 h-8 text-white fill-current ml-1" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <p className={`text-xs font-bold truncate transition-colors font-changa ${isCurrentReciter ? 'text-[#f97316]' : 'group-hover:text-[#f97316]'}`}>
+                                                    {reciter.name}
+                                                </p>
+                                                {reciter.style && (
+                                                    <span className="text-[10px] mt-1 inline-block px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 font-changa">
+                                                        {reciter.style}
+                                                    </span>
+                                                )}
+                                            </Wrapper>
+                                        );
+                                    })}
                                 </div>
                             </TabsContent>
 
