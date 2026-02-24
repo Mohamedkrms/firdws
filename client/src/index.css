@@ -8,6 +8,9 @@
 }
 
 :root {
+  /* Scale down the entire site for better 1080p viewing (like zoom out) */
+  font-size: 95%;
+
   /* SurahQuran.com Palette Clone */
   /* Main Background: White */
   --background: 0 0% 100%;

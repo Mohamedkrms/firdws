@@ -34,7 +34,69 @@ function Quran() {
         String(s.id).includes(query)
     );
 
-    if (loading) return <div className="p-8"><Skeleton className="h-96 w-full rounded-xl" /></div>;
+    const renderSkeleton = () => (
+        <div className="min-h-screen bg-[#f8f9fa] pb-20 overflow-hidden">
+            {/* Header Skeleton */}
+            <div className="bg-[#0f172a] py-12">
+                <div className="container mx-auto px-4 flex flex-col items-center">
+                    <Skeleton className="w-24 h-24 rounded-full mb-8 bg-slate-800" />
+                    <Skeleton className="h-12 w-64 mb-4 bg-slate-800" />
+                    <Skeleton className="h-6 w-96 mb-8 bg-slate-800" />
+                    <Skeleton className="h-12 w-full max-w-xl rounded-full bg-slate-800" />
+                </div>
+            </div>
+
+            <div className="container mx-auto px-4 -mt-6 mt-12">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    {/* Main Content Skeleton */}
+                    <div className="lg:col-span-3">
+                        <div className="bg-white rounded-xl shadow-sm border p-6">
+                            <div className="flex items-center justify-between mb-6 border-b pb-4">
+                                <Skeleton className="h-8 w-32" />
+                                <Skeleton className="h-5 w-16" />
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                {[...Array(12)].map((_, i) => (
+                                    <div key={i} className="flex items-center justify-between p-4 rounded-lg border">
+                                        <div className="flex items-center gap-4 w-full">
+                                            <Skeleton className="w-10 h-10 rounded-lg hidden md:block shrink-0" />
+                                            <div className="space-y-2 w-full">
+                                                <Skeleton className="h-5 w-3/4" />
+                                                <Skeleton className="h-3 w-1/2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sidebar Skeleton */}
+                    <div className="hidden lg:block space-y-6">
+                        <div className="bg-white rounded-xl shadow-sm border p-6 text-center flex flex-col items-center">
+                            <Skeleton className="w-24 h-24 rounded-full mb-4" />
+                            <Skeleton className="h-5 w-32 mb-2" />
+                            <Skeleton className="h-3 w-24" />
+                        </div>
+                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                            <Skeleton className="h-14 w-full rounded-none" />
+                            <div className="p-4 space-y-4">
+                                {[...Array(5)].map((_, i) => (
+                                    <div key={i} className="flex items-center justify-between gap-3">
+                                        <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+                                        <Skeleton className="h-4 w-full" />
+                                        <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    if (loading) return renderSkeleton();
 
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-20">

@@ -1,7 +1,13 @@
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Youtube, Send, Book, Headphones, Mic, GraduationCap, Github } from 'lucide-react';
+import { useUser } from "@clerk/clerk-react";
+
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 const Footer = () => {
+    const { user, isLoaded } = useUser();
+    const isAdmin = isLoaded && user && user.primaryEmailAddress?.emailAddress === ADMIN_EMAIL;
+
     return (
         <footer className="bg-[#0f172a] text-slate-300 pt-16 pb-8 border-t-4 border-[#f97316] relative overflow-hidden" dir="rtl">
             {/* Background subtle pattern */}
@@ -90,12 +96,14 @@ const Footer = () => {
                                     مقالات المدونة الإسلامية
                                 </Link>
                             </li>
-                            <li>
-                                <Link to="/admin" className="hover:text-[#f97316] transition-colors flex items-center gap-2 group">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#f97316] transition-colors" />
-                                    لوحة الإدارة
-                                </Link>
-                            </li>
+                            {isAdmin && (
+                                <li>
+                                    <Link to="/admin" className="hover:text-[#f97316] transition-colors flex items-center gap-2 group">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#f97316] transition-colors" />
+                                        لوحة الإدارة
+                                    </Link>
+                                </li>
+                            )}
                         </ul>
                     </div>
 
