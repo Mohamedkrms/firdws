@@ -165,7 +165,12 @@ function Ayah() {
     };
 
     const plainText = verse ? cleanText(verse.text_uthmani) : '';
-    const seoDescription = `${plainText.substring(0, 150)} — سورة ${surahName} الآية ${ayahNum} مع التفسير والاستماع`;
+    // Remove tashkeel for clean SEO text
+    const stripTashkeel = (t) => t.replace(/[\u064B-\u065F\u0670\u0653]/g, '').replace(/[إأآٱ]/g, 'ا');
+    const cleanSeoText = stripTashkeel(plainText);
+    const ayahPreview = cleanSeoText.split(/\s+/).slice(0, 8).join(' ');
+    const seoTitle = `${ayahPreview}... - تفسير سورة ${surahName} الآية ${ayahNum} | فردوس`;
+    const seoDescription = `${cleanSeoText.substring(0, 160)} — تفسير وقراءة سورة ${surahName} الآية ${ayahNum} مع الاستماع بصوت مشاري العفاسي`;
 
     if (loading) {
         return (
@@ -202,7 +207,7 @@ function Ayah() {
     return (
         <div className="min-h-screen bg-[#f8f9fa] pb-24" dir="rtl">
             <SEO
-                title={`سورة ${surahName} - الآية ${ayahNum} | القرآن الكريم مع التفسير - فردوس`}
+                title={seoTitle}
                 description={seoDescription}
                 keywords={`سورة ${surahName}, الآية ${ayahNum}, القرآن الكريم, تفسير, قراءة القرآن, ${surahName}, ayah ${ayahNum}, surah ${surahNum}, quran`}
                 url={`/surah/${surahNum}/${ayahNum}`}
