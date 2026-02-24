@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Quran from './pages/Quran';
 import Surah from './pages/Surah';
+import Ayah from './pages/Ayah';
 import Listen from './pages/Listen';
 import Ulama from './pages/Ulama';
 import Search from './pages/Search';
@@ -36,6 +37,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/quran" element={<Quran />} />
               <Route path="/surah/:id" element={<Surah />} />
+              <Route path="/surah/:surahId/:ayahId" element={<Ayah />} />
               <Route path="/listen" element={<Listen />} />
               <Route path="/listen/:reciterId" element={<Listen />} />
               <Route path="/ulama" element={<Ulama />} />

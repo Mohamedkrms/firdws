@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Play, Search, ChevronLeft, ChevronRight, Home, Download, Headphones, BookOpen } from 'lucide-react';
+import { Play, Search, ChevronLeft, ChevronRight, Home, Download, Headphones, BookOpen, ExternalLink } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
@@ -125,7 +125,16 @@ function Surah() {
         playTrack(track, allSurahs, reciterObj, currentIndex);
     };
 
+    const navigate = useNavigate();
+
     const handleVerseClick = (verse) => {
+        const ayahNumber = verse.verse_key.split(':')[1];
+        // On mobile/tablet: navigate directly to ayah page
+        if (window.innerWidth <= 1024) {
+            navigate(`/surah/${id}/${ayahNumber}`);
+            return;
+        }
+        // On desktop: show tafsir popup
         setSelectedVerse(verse);
         setTafsirData(null);
     };
@@ -433,7 +442,7 @@ function Surah() {
                                             <span
                                                 className={`font-sans text-xl mx-2 inline-flex items-center gap-2 cursor-pointer transition-opacity ${isActive ? 'text-[#ea580c]' : 'text-[#f97316]'}`}
                                             >
-                                                <span onClick={() => handleVerseClick(verse)} className="hover:opacity-80">({ayahNumber})</span>
+                                                <Link to={`/surah/${id}/${ayahNumber}`} className="hover:opacity-80" title={`سورة ${surahInfo?.name_arabic} - الآية ${ayahNumber}`}>({ayahNumber})</Link>
                                             </span>
                                         </span>
                                     );
@@ -515,6 +524,14 @@ function Surah() {
                                 استمع للآية
                             </Button>
                         </div>
+
+                        <Link
+                            to={`/surah/${id}/${selectedVerse?.verse_key?.split(':')[1]}`}
+                            className="inline-flex items-center gap-2 text-sm text-[#f97316] hover:text-[#ea580c] font-changa font-bold mt-3 transition-colors"
+                        >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            فتح صفحة الآية
+                        </Link>
                     </DialogHeader>
 
                     <div className="py-4 space-y-6 max-h-[60vh] overflow-y-auto">

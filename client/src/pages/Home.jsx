@@ -145,7 +145,7 @@ function Home() {
                                 <div className="absolute bottom-3 left-3 w-8 h-8 border-b-2 border-l-2 border-[#f97316]/20 rounded-bl-lg" />
 
 
-                                <p className="text-2xl md:text-3xl leading-[2.2] font-amiri text-[#0f172a]" dir="rtl">
+                                <p className="text-2xl md:text-3xl leading-[2.2] font-quran text-[#0f172a]" dir="rtl">
                                     ﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ وَيُبَشِّرُ الْمُؤْمِنِينَ الَّذِينَ يَعْمَلُونَ الصَّالِحَاتِ أَنَّ لَهُمْ أَجْرًا كَبِيرًا ﴾
                                 </p>
                                 <p className="text-sm text-gray-500 mt-4 font-medium">سورة الإسراء — الآية ٩</p>
