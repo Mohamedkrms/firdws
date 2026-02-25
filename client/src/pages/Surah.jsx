@@ -224,12 +224,12 @@ function Surah() {
                         "@type": "ListItem",
                         "position": 1,
                         "name": "الرئيسية",
-                        "item": "https://www.firdws.com/"
+                        "item": "https://firdws.com/"
                     }, {
                         "@type": "ListItem",
                         "position": 2,
                         "name": `سورة ${surahName}`,
-                        "item": `https://www.firdws.com/surah/${surahId}`
+                        "item": `https://firdws.com/surah/${surahId}`
                     }]
                 }}
             />

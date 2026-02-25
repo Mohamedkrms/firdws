@@ -36,7 +36,7 @@ const RECITERS_DATA = [
     { id: 35, slug: 'saleh_al_taleb', name: 'صالح آل طالب', img: 'https://ik.imagekit.io/ajr/reciters/salehaltaleb.jpeg' },
     { id: 36, slug: 'sudais_shuraim_and_english', name: 'السديس والشريم مع اسلم اظهر - ترجمة معاني القران الكريم باللغة النجليزية - بيكثال', img: 'https://ik.imagekit.io/ajr/reciters/saudsaudays.jpeg' },
     { id: 37, slug: 'abdul_basit_murattal', name: 'عبد الباسط عبد الصمد - مرتل', img: 'https://i.pinimg.com/564x/52/95/ae/5295ae7c08e4ebdc7eda3ddb5c6c0a19.jpg' },
-    { id: 39, slug: 'muhammad_ayub_and_mikaal_waters', name: 'محمد أيوب مع ميكال وترز - ترجمة معاني القران الكريم باللغة النجليزية - محسن خان', img: 'https://i.pinimg.com/564x/0a/40/9e/0a409ef09a55700877c20d7195fe9126.jpg' },
+    { id: 39, slug: 'muhammad_ayub_and_mikaal_waters', name: 'محمد أيوب مع ميكال وترز - ترجمة معاني القران الكريم باللغة النجليزية - محسن خان', img: 'https://ik.imagekit.io/ajr/alijabereng.jpg' },
     { id: 40, slug: 'abdulwadood_haneef', name: 'عبد الودود حنيف', img: 'https://i.pinimg.com/564x/0a/40/9e/0a409ef09a55700877c20d7195fe9126.jpg' },
     { id: 41, slug: 'minshawi_mujawwad', name: 'محمد صديق المنشاوي - مجود', img: 'https://i.pinimg.com/564x/0a/40/9e/0a409ef09a55700877c20d7195fe9126.jpg' },
     { id: 42, slug: 'shakir_qasami_with_english', name: 'شاكر قاسمى مع اسلم اظهر - ترجمة معاني القران الكريم باللغة النجليزية - بيكثال', img: 'https://i.pinimg.com/564x/0a/40/9e/0a409ef09a55700877c20d7195fe9126.jpg' },

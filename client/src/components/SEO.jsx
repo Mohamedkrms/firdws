@@ -1,7 +1,7 @@
 
 
 export default function SEO({ title, description, keywords, url, type = 'website', schema, noindex = false }) {
-    const DOMAIN = 'https://www.firdws.com';
+    const DOMAIN = 'https://firdws.com';
     const SITE_NAME = 'فردوس';
 
     const siteTitle = title

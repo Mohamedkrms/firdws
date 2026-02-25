@@ -79,7 +79,7 @@ export function SunnahHome() {
                     "@type": "CollectionPage",
                     "name": "السنة النبوية - استعرض الأحاديث الصحيحة من الكتب الستة مع الشرح",
                     "description": "تصفح وابحث في أحاديث النبي محمد صلى الله عليه وسلم من الكتب الستة مع الشروح والتخريج.",
-                    "url": "https://www.firdws.com/sunnah"
+                    "url": "https://firdws.com/sunnah"
                 }}
             />
             <div className="bg-[#0f172a] text-white py-12 relative overflow-hidden">
