@@ -58,7 +58,7 @@ function Listen() {
 
     const filteredReciters = reciters.filter(r => r.name.includes(filterReciter));
 
-    const { playTrack, currentAudio, isPlaying: isGlobalPlaying } = useAudio();
+    const { playTrack, togglePlay, currentAudio, isPlaying: isGlobalPlaying } = useAudio();
 
     // Build categories for the current detail view
     const detailCategories = useMemo(() => {
@@ -79,6 +79,14 @@ function Listen() {
 
     const handlePlaySurah = (reciter, surah) => {
         if (!surah) return;
+
+        // If this track is already loaded, just toggle play/pause
+        const isCurrentTrack = currentAudio?.title === surah.name_arabic && currentAudio?.reciter === reciter.name;
+        if (isCurrentTrack) {
+            togglePlay();
+            return;
+        }
+
         const chapterNum = String(surah.id).padStart(3, '0');
         let url = `https://download.quranicaudio.com/quran/${reciter.slug}/${chapterNum}.mp3`;
         if (reciter.year) {

@@ -18,7 +18,7 @@ function ListenSurah() {
     const [targetSurah, setTargetSurah] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const { playTrack, currentAudio, isPlaying: isGlobalPlaying } = useAudio();
+    const { playTrack, togglePlay, currentAudio, isPlaying: isGlobalPlaying } = useAudio();
 
     useEffect(() => {
         if (reciterId) {
@@ -81,15 +81,13 @@ function ListenSurah() {
 
         const isCurrentTrack = currentAudio?.title === targetSurah.name_arabic && currentAudio?.reciter === selectedReciter.name;
 
+        // If this track is already loaded, just toggle play/pause
         if (isCurrentTrack) {
-            // Context doesn't expose a simple toggle, but calling playTrack on same track pauses/plays in AudioContext
-            // Wait, AudioContext handles play/pause separately.
-            // Using a hack to force pause requires context modification, 
-            // but if we just rely on the global footer player, it's fine.
-            // Activating playTrack again usually restarts it.
-            // Let's just re-fire playTrack for simplicity if it's not playing
+            togglePlay();
+            return;
         }
 
+        // Otherwise start playing this track fresh
         const chapterNum = String(targetSurah.id).padStart(3, '0');
         let url = `https://download.quranicaudio.com/quran/${selectedReciter.slug}/${chapterNum}.mp3`;
         if (selectedReciter.year) url = `https://download.quranicaudio.com/quran/${selectedReciter.slug}/${selectedReciter.year}/${chapterNum}.mp3`;
