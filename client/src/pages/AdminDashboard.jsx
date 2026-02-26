@@ -186,7 +186,7 @@ function AdminDashboard() {
                                             variant="outline"
                                             size="sm"
                                             className="font-changa text-xs"
-                                            onClick={() => navigate(`/blog/${post._id}`)}
+                                            onClick={() => navigate(`/blog/${post.slug || post._id}`)}
                                         >
                                             عرض
                                         </Button>

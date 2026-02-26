@@ -21,9 +21,101 @@ const imagekit = new ImageKit({
     privateKey: process.env.IMAGEKIT_PRIVATE_KEY
 });
 
+const fs = require('fs');
+const path = require('path');
+
 // Routes
 app.get('/', (req, res) => {
     res.send('Ajr API Running');
+});
+
+const BASE_URL = 'https://firdws.com';
+
+// ─── Dynamic Sitemap Generation ────────────────────────
+app.get('/sitemap.xml', async (req, res) => {
+    try {
+        res.header('Content-Type', 'application/xml');
+        let urls = [];
+
+        const addUrl = (loc, priority = 0.5, changefreq = 'weekly') => {
+            urls.push(`
+                <url>
+                    <loc>${BASE_URL}${loc}</loc>
+                    <changefreq>${changefreq}</changefreq>
+                    <priority>${priority}</priority>
+                </url>
+            `);
+        };
+
+        // Static Core Routes
+        addUrl('', 1.0, 'daily');
+        addUrl('/quran', 0.9, 'yearly');
+        addUrl('/listen', 0.8, 'yearly');
+        addUrl('/sunnah', 0.8, 'yearly');
+        addUrl('/books', 0.7, 'monthly');
+        addUrl('/live', 0.7, 'weekly');
+        addUrl('/blog', 0.7, 'daily');
+        addUrl('/forum', 0.7, 'monthly');
+        addUrl('/ulama', 0.7, 'monthly');
+        addUrl('/about', 0.5, 'yearly');
+        addUrl('/contact', 0.5, 'yearly');
+        addUrl('/privacy', 0.3, 'yearly');
+        addUrl('/terms', 0.3, 'yearly');
+
+        // Dynamic Routes: Surahs and Ayahs
+        quranData.forEach(surah => {
+            // Surah page
+            addUrl(`/surah/${surah.id}`, 0.8, 'weekly');
+
+            // Ayah pages
+            surah.verses.forEach(verse => {
+                addUrl(`/surah/${surah.id}/${verse.id}`, 0.6, 'monthly');
+            });
+        });
+
+        // Dynamic Routes: Sunnah Books and Sections
+        // Hardcoding standard books for generating structured routes without fetching full dorar tree
+        const sunnahBooks = [
+            { id: 'bukhari', sections: 97 },
+            { id: 'muslim', sections: 56 },
+            { id: 'abudawud', sections: 43 },
+            { id: 'tirmidhi', sections: 50 },
+            { id: 'nasai', sections: 51 },
+            { id: 'ibnmajah', sections: 37 }
+        ];
+
+        sunnahBooks.forEach(book => {
+            addUrl(`/sunnah/${book.id}`, 0.8, 'yearly');
+            for (let s = 1; s <= book.sections; s++) {
+                addUrl(`/sunnah/${book.id}/${s}`, 0.7, 'yearly');
+            }
+        });
+
+        // Dynamic Routes: Blog and Forum Posts
+        const posts = await Post.find({ isApproved: true }, '_id slug date').lean();
+        posts.forEach(post => {
+            addUrl(`/blog/${post.slug || post._id}`, 0.7, 'weekly');
+        });
+
+        // Dynamic Routes: Ulama (Scholars)
+        // Ideally we would fetch scholar IDs from a DB, but assuming they are mapped via scholarsData.js on frontend 
+        // Example: hardcoded common ones from Listen.jsx payload
+        const commonScholars = [1, 2, 3, 4, 5, 6, 7];
+        commonScholars.forEach(id => {
+            addUrl(`/ulama/${id}`, 0.7, 'monthly');
+            addUrl(`/listen/${id}`, 0.7, 'monthly');
+        });
+
+        const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${urls.join('')}
+</urlset>`;
+
+        res.send(sitemap);
+    } catch (error) {
+        console.error('Sitemap Error:', error);
+        res.status(500).end();
+    }
 });
 
 // ─── ImageKit Auth ────────────────────────────────────
@@ -168,6 +260,7 @@ app.get('/api/bookmarks', async (req, res) => {
 // ─── Blog Posts & Forum Q&A ───────────────────────────
 const PostSchema = new mongoose.Schema({
     title: { type: String, required: true },
+    slug: { type: String, unique: true, sparse: true },
     content: { type: String, required: true },
     author: { type: String, default: 'Anonymous' },
     authorId: { type: String },
@@ -298,10 +391,21 @@ app.post('/api/posts', async (req, res) => {
             return res.status(403).json({ message: 'Unauthorized: Only admin can create blog posts' });
         }
 
+        // Generate Slug
+        let baseSlug = title.trim().replace(/\s+/g, '-').replace(/[^\w\u0621-\u064A\u0660-\u0669\-]/g, '');
+        if (!baseSlug) baseSlug = 'post';
+        let slug = baseSlug;
+        let counter = 1;
+        while (await Post.findOne({ slug })) {
+            slug = `${baseSlug}-${counter}`;
+            counter++;
+        }
+
         // Auto-approve if created by Admin
         const isAdmin = authorEmail === process.env.ADMIN_EMAIL;
         const newPost = new Post({
             title,
+            slug,
             content,
             author,
             authorId,
@@ -313,6 +417,7 @@ app.post('/api/posts', async (req, res) => {
         await newPost.save();
         res.status(201).json(newPost);
     } catch (error) {
+        console.error('Error creating post:', error);
         res.status(500).json({ message: 'Error creating post' });
     }
 });

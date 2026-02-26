@@ -101,7 +101,7 @@ function ForumPost({ post, onDelete, onEdit }) {
     };
 
     const handlePostClick = () => {
-        navigate(`/blog/${post._id}`);
+        navigate(`/blog/${post.slug || post._id}`);
     };
 
     return (
@@ -181,7 +181,7 @@ function ForumPost({ post, onDelete, onEdit }) {
                         <MessageSquare className="w-4 h-4" />
                         <span>{post.replyCount || 0} تعليقات</span>
                     </div>
-                    <div className="flex items-center gap-1.5 hover:bg-gray-100 p-1.5 rounded transition-colors" onClick={(e) => { e.stopPropagation(); navigate(`/blog/${post._id}`); }}>
+                    <div className="flex items-center gap-1.5 hover:bg-gray-100 p-1.5 rounded transition-colors" onClick={(e) => { e.stopPropagation(); navigate(`/blog/${post.slug || post._id}`); }}>
                         <Share2 className="w-4 h-4" />
                         <span>مشاركة</span>
                     </div>

@@ -51,7 +51,7 @@ function FeaturedPostCard({ post, onDelete, onEdit }) {
 
     return (
         <div
-            onClick={() => navigate(`/blog/${post._id}`)}
+            onClick={() => navigate(`/blog/${post.slug || post._id}`)}
             className="cursor-pointer relative rounded-2xl overflow-hidden group shadow-lg hover:shadow-xl transition-all duration-300 bg-[#0f172a] min-h-[320px] md:min-h-[400px] flex"
         >
             {/* Background Image or Gradient */}
@@ -139,7 +139,7 @@ function BlogPostCard({ post, onDelete, onEdit, index }) {
 
     return (
         <div
-            onClick={() => navigate(`/blog/${post._id}`)}
+            onClick={() => navigate(`/blog/${post.slug || post._id}`)}
             className="cursor-pointer bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:border-[#f97316]/30 transition-all duration-300 group flex flex-col"
         >
             {/* Image Area */}

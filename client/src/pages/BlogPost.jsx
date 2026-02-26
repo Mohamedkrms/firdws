@@ -42,7 +42,7 @@ export default function BlogPost() {
         const fetchPostAndReplies = async () => {
             try {
                 const postRes = await axios.get(`${API_URL}/api/posts`);
-                const foundPost = postRes.data.find(p => p._id === id);
+                const foundPost = postRes.data.find(p => p._id === id || p.slug === id);
 
                 if (foundPost) {
                     setPost(foundPost);

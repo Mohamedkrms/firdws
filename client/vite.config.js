@@ -15,6 +15,9 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    proxy: {
+      '/sitemap.xml': 'http://server:5000'
+    }
   },
   resolve: {
     alias: {
