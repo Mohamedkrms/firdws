@@ -19,6 +19,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
 import AdminRoute from './components/AdminRoute';
 import Footer from './components/Footer';
+import About from './pages/About';
+import Contact from './pages/Contact';
 import { AudioProvider, useAudio } from './context/AudioContext';
 import AudioPlayer from './components/AudioPlayer';
 
@@ -61,6 +63,8 @@ function App() {
                       <AdminDashboard />
                     </AdminRoute>
                   } />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

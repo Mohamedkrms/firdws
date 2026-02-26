@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Youtube, Send, Book, Headphones, Mic, GraduationCap, Github } from 'lucide-react';
+import { Facebook, Twitter, Youtube, Send, Book, Headphones, Mic, GraduationCap, Github, Heart } from 'lucide-react';
 import { useUser } from "@clerk/clerk-react";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
@@ -113,6 +113,18 @@ const Footer = () => {
                                     </Link>
                                 </li>
                             )}
+                            <li>
+                                <Link to="/about" className="hover:text-[#f97316] transition-colors flex items-center gap-2 group">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#f97316] transition-colors" />
+                                    عن فردوس
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/contact" className="hover:text-[#f97316] transition-colors flex items-center gap-2 group">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#f97316] transition-colors" />
+                                    تواصل معنا
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
@@ -129,6 +141,15 @@ const Footer = () => {
                             <Github className="w-4 h-4" />
                             عرض المشروع على GitHub
                         </a>
+                        <a
+                            href="https://ko-fi.com/behonest"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#f97316] hover:bg-[#ea580c] text-white rounded-lg text-sm font-bold font-changa transition-colors mt-3 shadow-md"
+                        >
+                            <Heart className="w-4 h-4" />
+                            ادعم المشروع
+                        </a>
                     </div>
 
                 </div>
@@ -136,12 +157,14 @@ const Footer = () => {
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 font-changa text-xs text-slate-500">
                     <p>© {new Date().getFullYear()} مشروع القرآن الكريم - فردوس. جميع الحقوق محفوظة.</p>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-wrap">
                         <Link to="/" className="hover:text-slate-300 transition-colors">الرئيسية</Link>
                         <span className="w-1 h-1 bg-slate-700 rounded-full" />
                         <Link to="/quran" className="hover:text-slate-300 transition-colors">القرآن الكريم</Link>
                         <span className="w-1 h-1 bg-slate-700 rounded-full" />
-                        <a href="mailto:contact@firdws.com" className="hover:text-slate-300 transition-colors">اتصل بنا</a>
+                        <Link to="/about" className="hover:text-slate-300 transition-colors">عن فردوس</Link>
+                        <span className="w-1 h-1 bg-slate-700 rounded-full" />
+                        <Link to="/contact" className="hover:text-slate-300 transition-colors">تواصل معنا</Link>
                     </div>
                 </div>
             </div>
