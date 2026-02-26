@@ -43,7 +43,8 @@ const AVAILABLE_TAFSIRS = [
     { id: 5, name: 'التفسير الوسيط' },
     { id: 6, name: 'تفسير البغوي' },
     { id: 7, name: 'تفسير القرطبي' },
-    { id: 8, name: 'تفسير الطبري' }
+    { id: 8, name: 'تفسير الطبري' },
+    { id: 'en', name: 'English Translation (Saheeh Intl)' }
 ];
 
 function Ayah() {

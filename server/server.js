@@ -707,6 +707,19 @@ app.get('/api/tafsir/:tafsirId/:surahNumber/:ayahNumber', async (req, res) => {
     try {
         const { tafsirId, surahNumber, ayahNumber } = req.params;
         const fetch = (await import('node-fetch')).default;
+
+        // Special case for English Translation
+        if (tafsirId === 'en') {
+            const response = await fetch(`http://api.alquran.cloud/v1/ayah/${surahNumber}:${ayahNumber}/en.sahih`);
+            const data = await response.json();
+            // Map alquran.cloud response format to the expected React frontend format `{ text: "..." }`
+            if (data.code === 200 && data.data) {
+                return res.json({ text: data.data.text });
+            }
+            return res.status(404).json({ message: 'Translation not found' });
+        }
+
+        // Default: Arabic Tafsir from quran-tafseer.com
         const response = await fetch(`http://api.quran-tafseer.com/tafseer/${tafsirId}/${surahNumber}/${ayahNumber}`);
         const data = await response.json();
         res.json(data);
