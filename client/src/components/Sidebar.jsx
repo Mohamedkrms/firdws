@@ -5,7 +5,7 @@ import {
     Home, Book, Headphones, Tv, PenLine, ScrollText,
     Library, GraduationCap, MessageCircle,
     ChevronRight, ChevronLeft, X, Menu,
-    Play, Pause, SkipForward, SkipBack, Maximize2
+    Play, Pause, SkipForward, SkipBack, Maximize2, Settings
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -35,6 +35,12 @@ const NAV_SECTIONS = [
         links: [
             { to: '/blog', label: 'المدونة', icon: PenLine },
             { to: '/forum', label: 'النقاشات', icon: MessageCircle },
+        ],
+    },
+    {
+        title: 'خيارات',
+        links: [
+            { to: '/settings', label: 'الإعدادات', icon: Settings },
         ],
     },
 ];

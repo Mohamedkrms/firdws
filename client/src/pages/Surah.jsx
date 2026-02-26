@@ -32,7 +32,7 @@ function Surah() {
     const { id } = useParams();
     const [searchParams] = useSearchParams();
     const targetAyah = searchParams.get('ayah');
-    const { playTrack } = useAudio();
+    const { playTrack, currentAudio, isPlaying } = useAudio();
     const [verses, setVerses] = useState([]);
     const [surahInfo, setSurahInfo] = useState(null);
     const [allSurahs, setAllSurahs] = useState([]);
@@ -204,7 +204,6 @@ function Surah() {
     const surahName = surahInfo?.name_arabic || '';
 
     // Helper to get play state of the current ayah
-    const { currentAudio, isPlaying } = useAudio();
     const isVersePlaying = (verseId) => {
         return currentAudio?.id === verseId && isPlaying;
     };
