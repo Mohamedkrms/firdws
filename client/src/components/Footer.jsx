@@ -165,6 +165,10 @@ const Footer = () => {
                         <Link to="/about" className="hover:text-slate-300 transition-colors">عن فردوس</Link>
                         <span className="w-1 h-1 bg-slate-700 rounded-full" />
                         <Link to="/contact" className="hover:text-slate-300 transition-colors">تواصل معنا</Link>
+                        <span className="w-1 h-1 bg-slate-700 rounded-full" />
+                        <Link to="/privacy" className="hover:text-slate-300 transition-colors">سياسة الخصوصية</Link>
+                        <span className="w-1 h-1 bg-slate-700 rounded-full" />
+                        <Link to="/terms" className="hover:text-slate-300 transition-colors">شروط الاستخدام</Link>
                     </div>
                 </div>
             </div>
