@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Headphones, Play, Pause, User, Music, Search, Filter, X, Tag } from 'lucide-react';
+import { Headphones, Play, Pause, User, Music, Search, Filter, X, Tag, Download } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -273,6 +273,22 @@ function Listen() {
                                                         <span className="w-0.5 h-full bg-[#f97316] animate-[bounce_0.8s_infinite]" />
                                                     </div>
                                                 )}
+                                                <a
+                                                    href={(() => {
+                                                        const chapterNum = String(item.id).padStart(3, '0');
+                                                        return selectedReciter.year
+                                                            ? `https://download.quranicaudio.com/quran/${selectedReciter.slug}/${selectedReciter.year}/${chapterNum}.mp3`
+                                                            : `https://download.quranicaudio.com/quran/${selectedReciter.slug}/${chapterNum}.mp3`;
+                                                    })()}
+                                                    download
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="h-8 w-8 flex items-center justify-center text-gray-400 hover:text-[#f97316] hover:bg-[#f97316]/10 rounded-full transition-colors"
+                                                    title="تحميل السورة"
+                                                >
+                                                    <Download className="w-4 h-4" />
+                                                </a>
                                                 <Button
                                                     size="icon" variant={isCurrentTrack ? "default" : "ghost"}
                                                     className={`h-8 w-8 rounded-full ${isCurrentTrack ? 'bg-[#f97316] hover:bg-[#e0650d]' : 'hover:bg-[#f97316]/10 hover:text-[#f97316]'}`}
