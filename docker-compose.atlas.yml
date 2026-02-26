@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  client:
+    container_name: quran-client-prod
+    build:
+      context: ./client
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - VITE_API_URL=/api
+    depends_on:
+      - server
+
+  server:
+    container_name: quran-server-prod
+    build: ./server
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    # MONGO_URI in server/.env
