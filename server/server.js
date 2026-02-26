@@ -104,6 +104,10 @@ app.get('/sitemap.xml', async (req, res) => {
         commonScholars.forEach(id => {
             addUrl(`/ulama/${id}`, 0.7, 'monthly');
             addUrl(`/listen/${id}`, 0.7, 'monthly');
+            // Add individual Surah listen pages for common scholars (114 surahs)
+            for (let s = 1; s <= 114; s++) {
+                addUrl(`/listen/${id}/${s}`, 0.6, 'yearly');
+            }
         });
 
         const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Headphones, Play, Pause, User, Music, Search, Filter, X, Tag, Download } from 'lucide-react';
+import { Headphones, Play, Pause, User, Music, Search, Filter, X, Tag, Download, Link2 } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -16,7 +16,7 @@ import { RECITERS_DATA } from '@/components/recitersdata';
 
 
 function Listen() {
-    const { reciterId } = useParams();
+    const { reciterId, surahId } = useParams();
     const [searchParams] = useSearchParams();
     const surahIdParam = searchParams.get('surah');
 
@@ -40,6 +40,30 @@ function Listen() {
             }
         }
     }, [reciterId]);
+
+    // Handle dedicated Surah URL playback
+    useEffect(() => {
+        if (!loading && surahId && selectedReciter && surahs.length > 0) {
+            const surah = surahs.find(s => s.id === parseInt(surahId));
+            if (surah) {
+                // Determine true array index to preserve playlist logic
+                const index = surahs.findIndex(s => s.id === surah.id);
+                const chapterNum = String(surah.id).padStart(3, '0');
+                let url = `https://download.quranicaudio.com/quran/${selectedReciter.slug}/${chapterNum}.mp3`;
+                if (selectedReciter.year) url = `https://download.quranicaudio.com/quran/${selectedReciter.slug}/${selectedReciter.year}/${chapterNum}.mp3`;
+
+                // Play immediately if NOT currently playing this specific combination
+                if (currentAudio?.title !== surah.name_arabic || currentAudio?.reciter !== selectedReciter.name) {
+                    playTrack({
+                        url,
+                        title: surah.name_arabic,
+                        reciter: selectedReciter.name,
+                        id: surah.id
+                    }, surahs, selectedReciter, index);
+                }
+            }
+        }
+    }, [loading, surahId, selectedReciter, surahs]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -111,13 +135,18 @@ function Listen() {
             })
             : rawContentList;
 
+        let targetSurah = null;
+        if (surahId) targetSurah = surahs.find(s => s.id === parseInt(surahId));
+
         return (
             <div className={`min-h-screen bg-background pb-20 ${currentAudio ? 'pb-32' : ''}`}>
                 <SEO
-                    title={`${selectedReciter.name} - استمع للقرآن الكريم بصوت القارئ ${selectedReciter.name} | جميع السور بجودة عالية`}
+                    title={targetSurah
+                        ? `سورة ${targetSurah.name_arabic} بصوت القارئ ${selectedReciter.name} - استمع وحمل برابط مباشر`
+                        : `${selectedReciter.name} - استمع للقرآن الكريم بصوت القارئ ${selectedReciter.name} | جميع السور بجودة عالية`}
                     description={selectedReciter.description || `استمع للقرآن الكريم كاملاً بصوت القارئ ${selectedReciter.name}. جميع السور متاحة بجودة عالية مع إمكانية التحميل والاستماع المباشر.`}
-                    keywords={`${selectedReciter.name}, تلاوة القرآن, قرآن كريم, استماع قرآن, تحميل قرآن, سور القرآن, تلاوة كاملة`}
-                    url={`/listen/${reciterId}`}
+                    keywords={`${targetSurah ? `سورة ${targetSurah.name_arabic}, ` : ''}${selectedReciter.name}, تلاوة القرآن, قرآن كريم, استماع قرآن, تحميل قرآن`}
+                    url={`/listen/${reciterId}${surahId ? `/${surahId}` : ''}`}
                 />
                 {/* Reciter/Scholar Header */}
                 <div className="bg-[#0f172a] text-white py-12 px-4 shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
@@ -289,6 +318,14 @@ function Listen() {
                                                 >
                                                     <Download className="w-4 h-4" />
                                                 </a>
+                                                <Link
+                                                    to={`/listen/${selectedReciter.id}/${item.id}`}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="h-8 w-8 flex items-center justify-center text-gray-400 hover:text-[#f97316] hover:bg-[#f97316]/10 rounded-full transition-colors"
+                                                    title="رابط مباشر للسورة"
+                                                >
+                                                    <Link2 className="w-4 h-4" />
+                                                </Link>
                                                 <Button
                                                     size="icon" variant={isCurrentTrack ? "default" : "ghost"}
                                                     className={`h-8 w-8 rounded-full ${isCurrentTrack ? 'bg-[#f97316] hover:bg-[#e0650d]' : 'hover:bg-[#f97316]/10 hover:text-[#f97316]'}`}

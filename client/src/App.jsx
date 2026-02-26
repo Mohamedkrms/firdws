@@ -50,6 +50,7 @@ function App() {
                   <Route path="/surah/:surahId/:ayahId" element={<Ayah />} />
                   <Route path="/listen" element={<Listen />} />
                   <Route path="/listen/:reciterId" element={<Listen />} />
+                  <Route path="/listen/:reciterId/:surahId" element={<Listen />} />
                   <Route path="/ulama" element={<Ulama />} />
                   <Route path="/ulama/:scholarId" element={<Ulama />} />
                   <Route path="/search" element={<Search />} />
