@@ -98,16 +98,18 @@ app.get('/sitemap.xml', async (req, res) => {
         });
 
         // Dynamic Routes: Ulama (Scholars)
-        // Ideally we would fetch scholar IDs from a DB, but assuming they are mapped via scholarsData.js on frontend 
-        // Example: hardcoded common ones from Listen.jsx payload
-        const commonScholars = [1, 2, 3, 4, 5, 6, 7];
-        commonScholars.forEach(id => {
-            addUrl(`/ulama/${id}`, 0.7, 'monthly');
+        // Ideally we would fetch scholar IDs from a DB, but assuming they are mapped via recitersdata.jsx on frontend
+        // Cover all reciters (IDs 1-166) and their individual surah listen pages
+        for (let id = 1; id <= 166; id++) {
             addUrl(`/listen/${id}`, 0.7, 'monthly');
-            // Add individual Surah listen pages for common scholars (114 surahs)
             for (let s = 1; s <= 114; s++) {
                 addUrl(`/listen/${id}/${s}`, 0.6, 'yearly');
             }
+        }
+        // Ulama pages
+        const commonScholars = [1, 2, 3, 4, 5, 6, 7];
+        commonScholars.forEach(id => {
+            addUrl(`/ulama/${id}`, 0.7, 'monthly');
         });
 
         const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

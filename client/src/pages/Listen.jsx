@@ -16,7 +16,7 @@ import { RECITERS_DATA } from '@/components/recitersdata';
 
 
 function Listen() {
-    const { reciterId, surahId } = useParams();
+    const { reciterId } = useParams();
     const [searchParams] = useSearchParams();
     const surahIdParam = searchParams.get('surah');
 
@@ -40,30 +40,6 @@ function Listen() {
             }
         }
     }, [reciterId]);
-
-    // Handle dedicated Surah URL playback
-    useEffect(() => {
-        if (!loading && surahId && selectedReciter && surahs.length > 0) {
-            const surah = surahs.find(s => s.id === parseInt(surahId));
-            if (surah) {
-                // Determine true array index to preserve playlist logic
-                const index = surahs.findIndex(s => s.id === surah.id);
-                const chapterNum = String(surah.id).padStart(3, '0');
-                let url = `https://download.quranicaudio.com/quran/${selectedReciter.slug}/${chapterNum}.mp3`;
-                if (selectedReciter.year) url = `https://download.quranicaudio.com/quran/${selectedReciter.slug}/${selectedReciter.year}/${chapterNum}.mp3`;
-
-                // Play immediately if NOT currently playing this specific combination
-                if (currentAudio?.title !== surah.name_arabic || currentAudio?.reciter !== selectedReciter.name) {
-                    playTrack({
-                        url,
-                        title: surah.name_arabic,
-                        reciter: selectedReciter.name,
-                        id: surah.id
-                    }, surahs, selectedReciter, index);
-                }
-            }
-        }
-    }, [loading, surahId, selectedReciter, surahs]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -135,18 +111,13 @@ function Listen() {
             })
             : rawContentList;
 
-        let targetSurah = null;
-        if (surahId) targetSurah = surahs.find(s => s.id === parseInt(surahId));
-
         return (
             <div className={`min-h-screen bg-background pb-20 ${currentAudio ? 'pb-32' : ''}`}>
                 <SEO
-                    title={targetSurah
-                        ? `سورة ${targetSurah.name_arabic} بصوت القارئ ${selectedReciter.name} - استمع وحمل برابط مباشر`
-                        : `${selectedReciter.name} - استمع للقرآن الكريم بصوت القارئ ${selectedReciter.name} | جميع السور بجودة عالية`}
+                    title={`${selectedReciter.name} - استمع للقرآن الكريم بصوت القارئ ${selectedReciter.name} | جميع السور بجودة عالية`}
                     description={selectedReciter.description || `استمع للقرآن الكريم كاملاً بصوت القارئ ${selectedReciter.name}. جميع السور متاحة بجودة عالية مع إمكانية التحميل والاستماع المباشر.`}
-                    keywords={`${targetSurah ? `سورة ${targetSurah.name_arabic}, ` : ''}${selectedReciter.name}, تلاوة القرآن, قرآن كريم, استماع قرآن, تحميل قرآن`}
-                    url={`/listen/${reciterId}${surahId ? `/${surahId}` : ''}`}
+                    keywords={`${selectedReciter.name}, تلاوة القرآن, قرآن كريم, استماع قرآن, تحميل قرآن, سور القرآن, تلاوة كاملة`}
+                    url={`/listen/${reciterId}`}
                 />
                 {/* Reciter/Scholar Header */}
                 <div className="bg-[#0f172a] text-white py-12 px-4 shadow-[0_4px_20px_rgba(0,0,0,0.1)]">

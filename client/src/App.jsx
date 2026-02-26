@@ -6,6 +6,7 @@ import Quran from './pages/Quran';
 import Surah from './pages/Surah';
 import Ayah from './pages/Ayah';
 import Listen from './pages/Listen';
+import ListenSurah from './pages/ListenSurah';
 import Ulama from './pages/Ulama';
 import Search from './pages/Search';
 import Blog from './pages/Blog';
@@ -50,7 +51,7 @@ function App() {
                   <Route path="/surah/:surahId/:ayahId" element={<Ayah />} />
                   <Route path="/listen" element={<Listen />} />
                   <Route path="/listen/:reciterId" element={<Listen />} />
-                  <Route path="/listen/:reciterId/:surahId" element={<Listen />} />
+                  <Route path="/listen/:reciterId/:surahId" element={<ListenSurah />} />
                   <Route path="/ulama" element={<Ulama />} />
                   <Route path="/ulama/:scholarId" element={<Ulama />} />
                   <Route path="/search" element={<Search />} />
