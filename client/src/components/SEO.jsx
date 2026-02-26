@@ -1,6 +1,6 @@
 
 
-export default function SEO({ title, description, keywords, url, type = 'website', schema, noindex = false }) {
+export default function SEO({ title, description, keywords, url, type = 'website', schema, noindex = false, image }) {
     const DOMAIN = 'https://firdws.com';
     const SITE_NAME = 'فردوس';
 
@@ -12,7 +12,7 @@ export default function SEO({ title, description, keywords, url, type = 'website
         || 'فردوس - منصة إسلامية شاملة لقراءة القرآن الكريم والاستماع لأكثر من 100 قارئ، تصفح الأحاديث النبوية من الكتب الستة، مكتبة كتب إسلامية، إذاعات قرآنية مباشرة، ومدونة إسلامية.';
 
     const siteUrl = url ? `${DOMAIN}${url}` : DOMAIN;
-    const imageUrl = `${DOMAIN}/logo.png`;
+    const imageUrl = image || `${DOMAIN}/logo.png`;
 
     // Default schema if none provided
     const defaultSchema = {

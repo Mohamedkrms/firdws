@@ -207,8 +207,9 @@ export default function BlogPost() {
                 title={`${post.title} | المدونة الإسلامية - فردوس`}
                 description={post.content ? post.content.replace(/<[^>]*>?/gm, '').substring(0, 160) : `مقال: ${post.title}`}
                 keywords={`${post.tags ? post.tags.join(', ') : ''}, مدونة إسلامية, مقالات شرعية, ${post.author}`}
-                url={`/blog/${post._id}`}
+                url={`/blog/${post.slug || post._id}`}
                 type="article"
+                image={post.imageUrl}
                 schema={{
                     "@context": "https://schema.org",
                     "@type": "Article",
@@ -218,7 +219,7 @@ export default function BlogPost() {
                         "name": post.author
                     },
                     "datePublished": post.date,
-                    "image": post.imageUrl ? post.imageUrl : "https://firdws.com/default-image.jpg"
+                    "image": post.imageUrl ? post.imageUrl : "https://firdws.com/logo.png"
                 }}
             />
 
