@@ -48,15 +48,15 @@ app.get('/sitemap.xml', async (req, res) => {
         };
 
         // Static Core Routes
-        addUrl('', 1.0, 'daily');
+        addUrl('', 1.0, 'monthly');
         addUrl('/quran', 0.9, 'yearly');
         addUrl('/listen', 0.8, 'yearly');
         addUrl('/sunnah', 0.8, 'yearly');
-        addUrl('/books', 0.7, 'monthly');
-        addUrl('/live', 0.7, 'weekly');
-        addUrl('/blog', 0.7, 'daily');
-        addUrl('/forum', 0.7, 'monthly');
-        addUrl('/ulama', 0.7, 'monthly');
+        addUrl('/books', 0.7, 'yearly');
+        addUrl('/live', 0.7, 'yearly');
+        addUrl('/blog', 0.7, 'yearly');
+        addUrl('/forum', 0.7, 'yearly');
+        addUrl('/ulama', 0.7, 'yearly');
         addUrl('/about', 0.5, 'yearly');
         addUrl('/contact', 0.5, 'yearly');
         addUrl('/privacy', 0.3, 'yearly');
@@ -65,11 +65,11 @@ app.get('/sitemap.xml', async (req, res) => {
         // Dynamic Routes: Surahs and Ayahs
         quranData.forEach(surah => {
             // Surah page
-            addUrl(`/surah/${surah.id}`, 0.8, 'weekly');
+            addUrl(`/surah/${surah.id}`, 0.8, 'yearly');
 
             // Ayah pages
             surah.verses.forEach(verse => {
-                addUrl(`/surah/${surah.id}/${verse.id}`, 0.6, 'monthly');
+                addUrl(`/surah/${surah.id}/${verse.id}`, 0.6, 'yearly');
             });
         });
 
@@ -94,7 +94,7 @@ app.get('/sitemap.xml', async (req, res) => {
         // Dynamic Routes: Blog and Forum Posts
         const posts = await Post.find({ isApproved: true }, '_id slug date').lean();
         posts.forEach(post => {
-            addUrl(`/blog/${post.slug || post._id}`, 0.7, 'weekly');
+            addUrl(`/blog/${post.slug || post._id}`, 0.7, 'yearly');
         });
 
 
@@ -107,7 +107,7 @@ app.get('/sitemap.xml', async (req, res) => {
         // Ulama pages
         const commonScholars = [1, 2, 3, 4, 5, 6, 7];
         commonScholars.forEach(id => {
-            addUrl(`/ulama/${id}`, 0.7, 'monthly');
+            addUrl(`/ulama/${id}`, 0.7, 'yearly');
         });
 
         const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
