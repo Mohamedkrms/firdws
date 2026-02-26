@@ -129,7 +129,7 @@ function ListenSurah() {
     return (
         <div className={`min-h-screen bg-background pb-24`} dir="rtl">
             <SEO
-                title={`سورة ${targetSurah.name_arabic} بصوت القارئ ${selectedReciter.name} - استمع وحمل`}
+                title={`سورة ${targetSurah.name_arabic} بصوت القارئ ${selectedReciter.name} - mp3 استمع وحمل`}
                 description={`استمع إلى سورة ${targetSurah.name_arabic} كاملة بصوت القارئ ${selectedReciter.name} بجودة عالية مع إمكانية التحميل المباشر للـ MP3.`}
                 keywords={`سورة ${targetSurah.name_arabic}, ${selectedReciter.name}, تلاوة, قرآن, استماع, تحميل, mp3`}
                 url={`/listen/${reciterId}/${surahId}`}

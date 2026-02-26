@@ -97,11 +97,9 @@ app.get('/sitemap.xml', async (req, res) => {
             addUrl(`/blog/${post.slug || post._id}`, 0.7, 'weekly');
         });
 
-        // Dynamic Routes: Ulama (Scholars)
-        // Ideally we would fetch scholar IDs from a DB, but assuming they are mapped via recitersdata.jsx on frontend
-        // Cover all reciters (IDs 1-166) and their individual surah listen pages
+
         for (let id = 1; id <= 166; id++) {
-            addUrl(`/listen/${id}`, 0.7, 'monthly');
+            addUrl(`/listen/${id}`, 0.7, 'yearly');
             for (let s = 1; s <= 114; s++) {
                 addUrl(`/listen/${id}/${s}`, 0.6, 'yearly');
             }

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Headphones, Play, Pause, User, Music, Search, Filter, X, Tag, Download, Link2 } from 'lucide-react';
+import { Headphones, Play, Pause, User, Music, Search, Filter, X, Tag, Download, FileSymlink } from 'lucide-react';
 import { useAudio } from '@/context/AudioContext';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -303,7 +303,7 @@ function Listen() {
                                                     className="h-8 w-8 flex items-center justify-center text-gray-400 hover:text-[#f97316] hover:bg-[#f97316]/10 rounded-full transition-colors"
                                                     title="رابط مباشر للسورة"
                                                 >
-                                                    <Link2 className="w-4 h-4" />
+                                                    <FileSymlink className="w-4 h-4" />
                                                 </Link>
                                                 <Button
                                                     size="icon" variant={isCurrentTrack ? "default" : "ghost"}
