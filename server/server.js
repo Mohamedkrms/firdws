@@ -104,10 +104,34 @@ app.get('/sitemap.xml', async (req, res) => {
                 addUrl(`/listen/${id}/${s}`, 0.6, 'yearly');
             }
         }
-        // Ulama pages
-        const commonScholars = [1, 2, 3, 4, 5, 6, 7];
-        commonScholars.forEach(id => {
-            addUrl(`/ulama/${id}`, 0.7, 'yearly');
+        // Dynamic Routes: Ulama (Scholars) and their content
+        const allUlama = await Ulama.find({}, 'slug _id bio audios videos').lean();
+        allUlama.forEach(u => {
+            const scholarSlug = u.slug || u._id;
+
+            // Scholar main page
+            addUrl(`/ulama/${scholarSlug}`, 0.7, 'yearly');
+
+            // Audio category and individual items
+            if (u.audios && u.audios.length > 0) {
+                addUrl(`/ulama/${scholarSlug}/audios`, 0.6, 'yearly');
+                u.audios.forEach(audio => {
+                    addUrl(`/ulama/${scholarSlug}/audios/${audio.id}`, 0.6, 'yearly');
+                });
+            }
+
+            // Video category and individual items
+            if (u.videos && u.videos.length > 0) {
+                addUrl(`/ulama/${scholarSlug}/videos`, 0.6, 'yearly');
+                u.videos.forEach(video => {
+                    addUrl(`/ulama/${scholarSlug}/videos/${video.id}`, 0.6, 'yearly');
+                });
+            }
+
+            // Bio page
+            if (u.bio) {
+                addUrl(`/ulama/${scholarSlug}/bio`, 0.5, 'yearly');
+            }
         });
 
         const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -137,25 +161,25 @@ app.get('/api/imagekit/auth', (req, res) => {
 app.post('/api/ulama/upload', (req, res) => {
     try {
         const { file, fileName, folder, adminEmail } = req.body;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         if (!file || !fileName) {
             return res.status(400).json({ message: 'File and fileName required' });
         }
-        
+
         // Extract MIME type from file
         const mimeMatch = file.match(/data:([^;]+)/);
         const mimeType = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
-        
+
         // Convert base64 to buffer
         const base64Data = file.replace(/^data:[^;]+;base64,/, '');
         const buffer = Buffer.from(base64Data, 'base64');
-        
+
         const folderPath = folder || 'ulama';
-        
+
         imagekit.upload({
             file: buffer,
             fileName: fileName,
@@ -872,7 +896,7 @@ const UlamaSchema = new mongoose.Schema({
     style: { type: String },
     image: { type: String },
     bio: { type: String },
-    
+
     // Data/Articles
     articles: [{
         id: { type: String, required: true },
@@ -881,7 +905,7 @@ const UlamaSchema = new mongoose.Schema({
         category: { type: String },
         date: { type: Date, default: Date.now }
     }],
-    
+
     // Audio Content
     audios: [{
         id: { type: String, required: true },
@@ -892,7 +916,7 @@ const UlamaSchema = new mongoose.Schema({
         duration: { type: Number }, // in seconds
         date: { type: Date, default: Date.now }
     }],
-    
+
     // Video Content
     videos: [{
         id: { type: String, required: true },
@@ -904,7 +928,7 @@ const UlamaSchema = new mongoose.Schema({
         duration: { type: Number }, // in seconds
         date: { type: Date, default: Date.now }
     }],
-    
+
     addedBy: { type: String },
     date: { type: Date, default: Date.now }
 });
@@ -916,7 +940,7 @@ app.get('/api/ulama', async (req, res) => {
     try {
         const { search, sort } = req.query;
         const query = {};
-        
+
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -924,7 +948,7 @@ app.get('/api/ulama', async (req, res) => {
                 { style: { $regex: search, $options: 'i' } }
             ];
         }
-        
+
         const sortOption = sort === 'newest' ? { date: -1 } : { name: 1 };
         const ulama = await Ulama.find(query).sort(sortOption).lean();
         res.json(ulama);
@@ -959,11 +983,11 @@ app.get('/api/ulama/:id', async (req, res) => {
 app.post('/api/ulama', async (req, res) => {
     try {
         const { name, description, style, image, bio, adminEmail } = req.body;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized: Only admin can create ulama entries' });
         }
-        
+
         // Generate slug
         let baseSlug = name.trim().replace(/\s+/g, '-').replace(/[^\w\u0621-\u064A\u0660-\u0669\-]/g, '');
         if (!baseSlug) baseSlug = 'ulama';
@@ -973,7 +997,7 @@ app.post('/api/ulama', async (req, res) => {
             slug = `${baseSlug}-${counter}`;
             counter++;
         }
-        
+
         const newUlama = new Ulama({
             name,
             slug,
@@ -983,7 +1007,7 @@ app.post('/api/ulama', async (req, res) => {
             bio,
             addedBy: adminEmail
         });
-        
+
         await newUlama.save();
         res.status(201).json(newUlama);
     } catch (error) {
@@ -996,20 +1020,20 @@ app.post('/api/ulama', async (req, res) => {
 app.put('/api/ulama/:id', async (req, res) => {
     try {
         const { name, description, style, image, bio, adminEmail } = req.body;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
-        
+
         if (name) ulama.name = name;
         if (description) ulama.description = description;
         if (style) ulama.style = style;
         if (image) ulama.image = image;
         if (bio) ulama.bio = bio;
-        
+
         await ulama.save();
         res.json(ulama);
     } catch (error) {
@@ -1022,11 +1046,11 @@ app.put('/api/ulama/:id', async (req, res) => {
 app.delete('/api/ulama/:id', async (req, res) => {
     try {
         const { adminEmail } = req.query;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
         await Ulama.findByIdAndDelete(ulama._id);
@@ -1042,14 +1066,14 @@ app.delete('/api/ulama/:id', async (req, res) => {
 app.post('/api/ulama/:id/articles', async (req, res) => {
     try {
         const { title, content, category, adminEmail } = req.body;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
-        
+
         const articleId = Date.now().toString();
         ulama.articles.push({
             id: articleId,
@@ -1057,7 +1081,7 @@ app.post('/api/ulama/:id/articles', async (req, res) => {
             content,
             category
         });
-        
+
         await ulama.save();
         res.status(201).json(ulama);
     } catch (error) {
@@ -1070,14 +1094,14 @@ app.post('/api/ulama/:id/articles', async (req, res) => {
 app.delete('/api/ulama/:id/articles/:articleId', async (req, res) => {
     try {
         const { adminEmail } = req.query;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
-        
+
         ulama.articles = ulama.articles.filter(a => a.id !== req.params.articleId);
         await ulama.save();
         res.json(ulama);
@@ -1092,14 +1116,14 @@ app.delete('/api/ulama/:id/articles/:articleId', async (req, res) => {
 app.post('/api/ulama/:id/audios', async (req, res) => {
     try {
         const { title, url, category, description, duration, adminEmail } = req.body;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
-        
+
         const audioId = Date.now().toString();
         ulama.audios.push({
             id: audioId,
@@ -1109,7 +1133,7 @@ app.post('/api/ulama/:id/audios', async (req, res) => {
             description,
             duration
         });
-        
+
         await ulama.save();
         res.status(201).json(ulama);
     } catch (error) {
@@ -1122,23 +1146,23 @@ app.post('/api/ulama/:id/audios', async (req, res) => {
 app.put('/api/ulama/:id/audios/:audioId', async (req, res) => {
     try {
         const { title, url, category, description, duration, adminEmail } = req.body;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
-        
+
         const audio = ulama.audios.find(a => a.id === req.params.audioId);
         if (!audio) return res.status(404).json({ message: 'Audio not found' });
-        
+
         if (title) audio.title = title;
         if (url) audio.url = url;
         if (category !== undefined) audio.category = category;
         if (description !== undefined) audio.description = description;
         if (duration !== undefined) audio.duration = duration;
-        
+
         await ulama.save();
         res.json(ulama);
     } catch (error) {
@@ -1151,14 +1175,14 @@ app.put('/api/ulama/:id/audios/:audioId', async (req, res) => {
 app.delete('/api/ulama/:id/audios/:audioId', async (req, res) => {
     try {
         const { adminEmail } = req.query;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
-        
+
         ulama.audios = ulama.audios.filter(a => a.id !== req.params.audioId);
         await ulama.save();
         res.json(ulama);
@@ -1173,14 +1197,14 @@ app.delete('/api/ulama/:id/audios/:audioId', async (req, res) => {
 app.post('/api/ulama/:id/videos', async (req, res) => {
     try {
         const { title, url, thumbnail, category, description, duration, adminEmail } = req.body;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
-        
+
         const videoId = Date.now().toString();
         ulama.videos.push({
             id: videoId,
@@ -1191,7 +1215,7 @@ app.post('/api/ulama/:id/videos', async (req, res) => {
             description,
             duration
         });
-        
+
         await ulama.save();
         res.status(201).json(ulama);
     } catch (error) {
@@ -1204,24 +1228,24 @@ app.post('/api/ulama/:id/videos', async (req, res) => {
 app.put('/api/ulama/:id/videos/:videoId', async (req, res) => {
     try {
         const { title, url, thumbnail, category, description, duration, adminEmail } = req.body;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
-        
+
         const video = ulama.videos.find(v => v.id === req.params.videoId);
         if (!video) return res.status(404).json({ message: 'Video not found' });
-        
+
         if (title) video.title = title;
         if (url) video.url = url;
         if (thumbnail !== undefined) video.thumbnail = thumbnail;
         if (category !== undefined) video.category = category;
         if (description !== undefined) video.description = description;
         if (duration !== undefined) video.duration = duration;
-        
+
         await ulama.save();
         res.json(ulama);
     } catch (error) {
@@ -1234,14 +1258,14 @@ app.put('/api/ulama/:id/videos/:videoId', async (req, res) => {
 app.delete('/api/ulama/:id/videos/:videoId', async (req, res) => {
     try {
         const { adminEmail } = req.query;
-        
+
         if (adminEmail !== process.env.ADMIN_EMAIL) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
-        
+
         const ulama = await findUlama(req.params.id);
         if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
-        
+
         ulama.videos = ulama.videos.filter(v => v.id !== req.params.videoId);
         await ulama.save();
         res.json(ulama);
