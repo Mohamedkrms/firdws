@@ -133,6 +133,52 @@ app.get('/api/imagekit/auth', (req, res) => {
     }
 });
 
+// ─── File Upload for Ulama (Audio/Video/Images) ────────────────────────────
+app.post('/api/ulama/upload', (req, res) => {
+    try {
+        const { file, fileName, folder, adminEmail } = req.body;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        if (!file || !fileName) {
+            return res.status(400).json({ message: 'File and fileName required' });
+        }
+        
+        // Extract MIME type from file
+        const mimeMatch = file.match(/data:([^;]+)/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+        
+        // Convert base64 to buffer
+        const base64Data = file.replace(/^data:[^;]+;base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        const folderPath = folder || 'ulama';
+        
+        imagekit.upload({
+            file: buffer,
+            fileName: fileName,
+            folder: `/ulama/${folderPath}`,
+            tags: ['ulama', folderPath]
+        }, (error, result) => {
+            if (error) {
+                console.error('ImageKit Upload Error:', error);
+                return res.status(500).json({ message: 'Error uploading file' });
+            }
+            res.json({
+                success: true,
+                url: result.url,
+                fileId: result.fileId,
+                name: result.name
+            });
+        });
+    } catch (error) {
+        console.error('Upload Error:', error);
+        res.status(500).json({ message: 'Error uploading file' });
+    }
+});
+
 // ─── Surahs ───────────────────────────────────────────
 app.get('/api/surahs', async (req, res) => {
     try {
@@ -815,6 +861,323 @@ app.delete('/api/livestreams/:id', async (req, res) => {
         res.status(200).json({ message: 'Live stream deleted' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting live stream' });
+    }
+});
+
+// ─── Ulama (Scholars) with Data, Audio, and Video ───────────────────────────
+const UlamaSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    slug: { type: String, unique: true, sparse: true },
+    description: { type: String },
+    style: { type: String },
+    image: { type: String },
+    bio: { type: String },
+    
+    // Data/Articles
+    articles: [{
+        id: { type: String, required: true },
+        title: { type: String, required: true },
+        content: { type: String },
+        category: { type: String },
+        date: { type: Date, default: Date.now }
+    }],
+    
+    // Audio Content
+    audios: [{
+        id: { type: String, required: true },
+        title: { type: String, required: true },
+        url: { type: String, required: true },
+        category: { type: String },
+        description: { type: String },
+        duration: { type: Number }, // in seconds
+        date: { type: Date, default: Date.now }
+    }],
+    
+    // Video Content
+    videos: [{
+        id: { type: String, required: true },
+        title: { type: String, required: true },
+        url: { type: String, required: true },
+        thumbnail: { type: String },
+        category: { type: String },
+        description: { type: String },
+        duration: { type: Number }, // in seconds
+        date: { type: Date, default: Date.now }
+    }],
+    
+    addedBy: { type: String },
+    date: { type: Date, default: Date.now }
+});
+
+const Ulama = mongoose.model('Ulama', UlamaSchema);
+
+// GET all Ulama scholars
+app.get('/api/ulama', async (req, res) => {
+    try {
+        const { search, sort } = req.query;
+        const query = {};
+        
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } },
+                { style: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        const sortOption = sort === 'newest' ? { date: -1 } : { name: 1 };
+        const ulama = await Ulama.find(query).sort(sortOption).lean();
+        res.json(ulama);
+    } catch (error) {
+        console.error('Error fetching ulama:', error);
+        res.status(500).json({ message: 'Error fetching ulama' });
+    }
+});
+
+// GET single Ulama scholar by ID
+app.get('/api/ulama/:id', async (req, res) => {
+    try {
+        const ulama = await Ulama.findById(req.params.id);
+        if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
+        res.json(ulama);
+    } catch (error) {
+        console.error('Error fetching ulama:', error);
+        res.status(500).json({ message: 'Error fetching ulama' });
+    }
+});
+
+// POST create new Ulama scholar
+app.post('/api/ulama', async (req, res) => {
+    try {
+        const { name, description, style, image, bio, adminEmail } = req.body;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized: Only admin can create ulama entries' });
+        }
+        
+        // Generate slug
+        let baseSlug = name.trim().replace(/\s+/g, '-').replace(/[^\w\u0621-\u064A\u0660-\u0669\-]/g, '');
+        if (!baseSlug) baseSlug = 'ulama';
+        let slug = baseSlug;
+        let counter = 1;
+        while (await Ulama.findOne({ slug })) {
+            slug = `${baseSlug}-${counter}`;
+            counter++;
+        }
+        
+        const newUlama = new Ulama({
+            name,
+            slug,
+            description,
+            style,
+            image,
+            bio,
+            addedBy: adminEmail
+        });
+        
+        await newUlama.save();
+        res.status(201).json(newUlama);
+    } catch (error) {
+        console.error('Error creating ulama:', error);
+        res.status(500).json({ message: 'Error creating ulama' });
+    }
+});
+
+// PUT update Ulama scholar
+app.put('/api/ulama/:id', async (req, res) => {
+    try {
+        const { name, description, style, image, bio, adminEmail } = req.body;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        const ulama = await Ulama.findById(req.params.id);
+        if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
+        
+        if (name) ulama.name = name;
+        if (description) ulama.description = description;
+        if (style) ulama.style = style;
+        if (image) ulama.image = image;
+        if (bio) ulama.bio = bio;
+        
+        await ulama.save();
+        res.json(ulama);
+    } catch (error) {
+        console.error('Error updating ulama:', error);
+        res.status(500).json({ message: 'Error updating ulama' });
+    }
+});
+
+// DELETE Ulama scholar
+app.delete('/api/ulama/:id', async (req, res) => {
+    try {
+        const { adminEmail } = req.query;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        await Ulama.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'Ulama deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting ulama:', error);
+        res.status(500).json({ message: 'Error deleting ulama' });
+    }
+});
+
+// ─── ARTICLES ───────────────────────────────────────────────────────────────
+// POST add article to Ulama scholar
+app.post('/api/ulama/:id/articles', async (req, res) => {
+    try {
+        const { title, content, category, adminEmail } = req.body;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        const ulama = await Ulama.findById(req.params.id);
+        if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
+        
+        const articleId = Date.now().toString();
+        ulama.articles.push({
+            id: articleId,
+            title,
+            content,
+            category
+        });
+        
+        await ulama.save();
+        res.status(201).json(ulama);
+    } catch (error) {
+        console.error('Error adding article:', error);
+        res.status(500).json({ message: 'Error adding article' });
+    }
+});
+
+// DELETE article from Ulama scholar
+app.delete('/api/ulama/:id/articles/:articleId', async (req, res) => {
+    try {
+        const { adminEmail } = req.query;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        const ulama = await Ulama.findById(req.params.id);
+        if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
+        
+        ulama.articles = ulama.articles.filter(a => a.id !== req.params.articleId);
+        await ulama.save();
+        res.json(ulama);
+    } catch (error) {
+        console.error('Error deleting article:', error);
+        res.status(500).json({ message: 'Error deleting article' });
+    }
+});
+
+// ─── AUDIO ──────────────────────────────────────────────────────────────────
+// POST add audio to Ulama scholar
+app.post('/api/ulama/:id/audios', async (req, res) => {
+    try {
+        const { title, url, category, description, duration, adminEmail } = req.body;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        const ulama = await Ulama.findById(req.params.id);
+        if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
+        
+        const audioId = Date.now().toString();
+        ulama.audios.push({
+            id: audioId,
+            title,
+            url,
+            category,
+            description,
+            duration
+        });
+        
+        await ulama.save();
+        res.status(201).json(ulama);
+    } catch (error) {
+        console.error('Error adding audio:', error);
+        res.status(500).json({ message: 'Error adding audio' });
+    }
+});
+
+// DELETE audio from Ulama scholar
+app.delete('/api/ulama/:id/audios/:audioId', async (req, res) => {
+    try {
+        const { adminEmail } = req.query;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        const ulama = await Ulama.findById(req.params.id);
+        if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
+        
+        ulama.audios = ulama.audios.filter(a => a.id !== req.params.audioId);
+        await ulama.save();
+        res.json(ulama);
+    } catch (error) {
+        console.error('Error deleting audio:', error);
+        res.status(500).json({ message: 'Error deleting audio' });
+    }
+});
+
+// ─── VIDEO ──────────────────────────────────────────────────────────────────
+// POST add video to Ulama scholar
+app.post('/api/ulama/:id/videos', async (req, res) => {
+    try {
+        const { title, url, thumbnail, category, description, duration, adminEmail } = req.body;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        const ulama = await Ulama.findById(req.params.id);
+        if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
+        
+        const videoId = Date.now().toString();
+        ulama.videos.push({
+            id: videoId,
+            title,
+            url,
+            thumbnail,
+            category,
+            description,
+            duration
+        });
+        
+        await ulama.save();
+        res.status(201).json(ulama);
+    } catch (error) {
+        console.error('Error adding video:', error);
+        res.status(500).json({ message: 'Error adding video' });
+    }
+});
+
+// DELETE video from Ulama scholar
+app.delete('/api/ulama/:id/videos/:videoId', async (req, res) => {
+    try {
+        const { adminEmail } = req.query;
+        
+        if (adminEmail !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        const ulama = await Ulama.findById(req.params.id);
+        if (!ulama) return res.status(404).json({ message: 'Ulama not found' });
+        
+        ulama.videos = ulama.videos.filter(v => v.id !== req.params.videoId);
+        await ulama.save();
+        res.json(ulama);
+    } catch (error) {
+        console.error('Error deleting video:', error);
+        res.status(500).json({ message: 'Error deleting video' });
     }
 });
 
