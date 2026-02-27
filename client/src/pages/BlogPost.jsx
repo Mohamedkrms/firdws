@@ -53,7 +53,7 @@ export default function BlogPost() {
                     setScore((foundPost.upvoters?.length || 0) - (foundPost.downvoters?.length || 0));
 
                     setLoadingReplies(true);
-                    const repliesRes = await axios.get(`${API_URL}/api/posts/${id}/replies`);
+                    const repliesRes = await axios.get(`${API_URL}/api/posts/${foundPost._id}/replies`);
                     setReplies(repliesRes.data);
                 }
             } catch (error) {
@@ -116,7 +116,7 @@ export default function BlogPost() {
             });
             setReplyContent('');
 
-            const repliesRes = await axios.get(`${API_URL}/api/posts/${id}/replies`);
+            const repliesRes = await axios.get(`${API_URL}/api/posts/${post._id}/replies`);
             setReplies(repliesRes.data);
         } catch (error) {
             console.error('Error submitting reply:', error);
@@ -362,7 +362,7 @@ export default function BlogPost() {
                     {/* Article Body */}
                     <div className="p-6 md:p-10 lg:p-12">
                         <div
-                            className="prose prose-lg max-w-none prose-headings:font-amiri prose-headings:text-[#0f172a] prose-p:leading-[2] prose-p:text-gray-700 prose-p:font-changa prose-a:text-[#f97316] prose-a:no-underline hover:prose-a:underline prose-img:rounded-2xl prose-img:shadow-md prose-blockquote:border-[#f97316] prose-blockquote:bg-[#fff7ed] prose-blockquote:rounded-lg prose-blockquote:py-1 prose-strong:text-[#0f172a] text-lg"
+                            className="prose prose-lg md:prose-xl max-w-none prose-headings:font-amiri prose-headings:text-[#0f172a] prose-headings:mb-6 prose-headings:mt-10 prose-p:leading-[2.4] prose-p:text-gray-700 prose-p:font-changa prose-p:mb-8 prose-a:text-[#f97316] prose-a:no-underline hover:prose-a:underline prose-img:rounded-3xl prose-img:shadow-lg prose-img:my-10 prose-blockquote:border-r-4 prose-blockquote:border-l-0 prose-blockquote:border-[#f97316] prose-blockquote:bg-[#fff7ed] prose-blockquote:rounded-l-2xl prose-blockquote:py-4 prose-blockquote:px-8 prose-blockquote:my-8 prose-blockquote:text-gray-800 prose-blockquote:font-amiri prose-blockquote:text-2xl prose-strong:text-[#0f172a] prose-ul:list-disc prose-ul:mr-8 prose-ul:mb-8 prose-li:mb-3 prose-li:font-changa prose-li:text-gray-700 text-justify"
                             dangerouslySetInnerHTML={{ __html: post.content }}
                         />
                     </div>
