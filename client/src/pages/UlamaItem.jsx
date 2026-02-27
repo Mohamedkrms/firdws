@@ -647,7 +647,7 @@ function UlamaItem() {
             />
 
             {/* Immersive Header */}
-            <div className={`relative overflow-hidden bg-[#0f172a] text-white ${isVideo ? 'py-10' : 'py-16'} flex items-center ${isVideo ? 'min-h-[280px]' : 'min-h-[400px]'}`}>
+            <div className={`relative overflow-hidden bg-[#0f172a] text-white py-16 flex items-center min-h-[400px]`}>
                 {/* Background Image */}
                 {(isVideo && item.thumbnail ? item.thumbnail : scholar.image) && (
                     <>
@@ -669,54 +669,46 @@ function UlamaItem() {
                         العودة لقائمة {isAudio ? 'الصوتيات' : 'الفيديوهات'}
                     </button>
 
-                    <div className={`flex flex-col md:flex-row items-center gap-8 justify-center max-w-4xl mx-auto`}>
-                        {/* Artwork — smaller for video pages since the video itself is the main visual */}
-                        {isAudio && (
-                            <div className="w-48 h-48 md:w-64 md:h-64 rounded-2xl border-4 border-white/20 shadow-2xl overflow-hidden shrink-0 relative bg-black">
-                                {scholar.image ? (
+                    <div className="flex flex-col md:flex-row items-center gap-8 justify-center max-w-4xl mx-auto">
+                        {/* Artwork */}
+                        <div className="w-48 h-48 md:w-64 md:h-64 rounded-2xl border-4 border-white/20 shadow-2xl overflow-hidden shrink-0 relative bg-black">
+                            {scholar.image ? (
+                                <img
+                                    src={scholar.image}
+                                    alt={scholar.name}
+                                    className={`w-full h-full object-cover transition-transform duration-700 ${isPlaying ? 'scale-110' : 'scale-100'}`}
+                                />
+                            ) :
+                                isVideo && item.thumbnail ? (
                                     <img
-                                        src={scholar.image}
-                                        alt={scholar.name}
-                                        className={`w-full h-full object-cover transition-transform duration-700 ${isPlaying ? 'scale-110' : 'scale-100'}`}
+                                        src={item.thumbnail}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover"
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-slate-800">
                                         <GraduationCap className="w-16 h-16 text-slate-400 opacity-50" />
                                     </div>
                                 )}
-                                {isPlaying && (
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                        <div className="flex gap-1 h-8 items-end">
-                                            <span className="w-1.5 h-full bg-[#f97316] animate-[bounce_1s_infinite] rounded-full" />
-                                            <span className="w-1.5 h-2/3 bg-[#f97316] animate-[bounce_1.2s_infinite] rounded-full" />
-                                            <span className="w-1.5 h-1/2 bg-[#f97316] animate-[bounce_0.8s_infinite] rounded-full" />
-                                            <span className="w-1.5 h-4/5 bg-[#f97316] animate-[bounce_1.1s_infinite] rounded-full" />
-                                        </div>
+                            {isAudio && isPlaying && (
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                    <div className="flex gap-1 h-8 items-end">
+                                        <span className="w-1.5 h-full bg-[#f97316] animate-[bounce_1s_infinite] rounded-full" />
+                                        <span className="w-1.5 h-2/3 bg-[#f97316] animate-[bounce_1.2s_infinite] rounded-full" />
+                                        <span className="w-1.5 h-1/2 bg-[#f97316] animate-[bounce_0.8s_infinite] rounded-full" />
+                                        <span className="w-1.5 h-4/5 bg-[#f97316] animate-[bounce_1.1s_infinite] rounded-full" />
                                     </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Video page: smaller scholar avatar instead of big artwork */}
-                        {isVideo && (
-                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-white/20 shadow-lg overflow-hidden shrink-0 bg-black">
-                                {scholar.image ? (
-                                    <img src={scholar.image} alt={scholar.name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-slate-800">
-                                        <GraduationCap className="w-8 h-8 text-slate-400 opacity-50" />
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                </div>
+                            )}
+                        </div>
 
                         {/* Info & Controls */}
-                        <div className={`text-center ${isVideo ? '' : 'md:text-right'} space-y-4 flex-1`}>
+                        <div className="text-center md:text-right space-y-4 flex-1">
                             <div>
-                                <h1 className={`font-bold font-amiri mb-3 text-[#f97316] ${isVideo ? 'text-2xl md:text-4xl' : 'text-3xl md:text-5xl'}`}>
+                                <h1 className="text-3xl md:text-5xl font-bold font-amiri mb-3 text-[#f97316]">
                                     {item.title}
                                 </h1>
-                                <p className={`font-changa text-gray-200 flex items-center justify-center ${isVideo ? '' : 'md:justify-start'} gap-3 ${isVideo ? 'text-lg' : 'text-xl md:text-2xl'}`}>
+                                <p className="text-xl md:text-2xl font-changa text-gray-200 flex items-center justify-center md:justify-start gap-3">
                                     {isAudio ? <Music className="w-5 h-5 text-white/50" /> : <Video className="w-5 h-5 text-white/50" />}
                                     الشيخ {scholar.name}
                                 </p>
